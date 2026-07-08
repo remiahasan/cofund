@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\VerificationController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CampaignController;
 use App\Http\Controllers\Api\CampaignTierController;
+use App\Http\Controllers\Api\BackingController;
+use App\Http\Controllers\Api\TransactionController;
 
 
 /*
@@ -53,5 +55,8 @@ Route::prefix('v1')->group(function () {
         //Backings
         Route::apiResource('backing', BackingController::class)->shallow();
         Route::patch('backing/{backing}/complete', [BackingController::class, 'complete']);
+
+        //transaction
+        Route::apiResource('transaction', TransactionController::class);
     });
 });
