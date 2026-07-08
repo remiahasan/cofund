@@ -52,5 +52,6 @@ Route::prefix('v1')->group(function () {
 
         //Backings
         Route::apiResource('backing', BackingController::class)->shallow();
+        Route::patch('backing/{backing}/complete', [BackingController::class, 'complete']);
     });
 });

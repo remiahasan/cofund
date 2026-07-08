@@ -95,4 +95,15 @@ class BackingController extends Controller
             'message'=>'Backing berhasil dihapus'
         ]);
     }
+
+    public function complete(Backing $backing): JsonResponse
+    {
+        $backing = $this->backingService->completeBacking($backing);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pembayaran berhasil dikonfirmasi',
+            'data' => new BackingResource($backing),
+        ]);
+    }
 }

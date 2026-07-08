@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\CampaignImage;
+use App\Models\CampaignUpdate;
+use App\Models\CampaignTier;
+use App\Models\Backing;
+use App\Models\User;
+use App\Models\Category;
 
 class Campaign extends Model
 {

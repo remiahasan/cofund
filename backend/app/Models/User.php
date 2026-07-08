@@ -8,7 +8,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Backing;
 use App\Models\Campaign;
+use App\Models\Transaction;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -55,5 +57,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function backings()
     {
         return $this->hasMany(Backing::class);
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
     }
 }

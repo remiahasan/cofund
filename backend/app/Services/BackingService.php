@@ -65,4 +65,32 @@ class BackingService
     {
         return $backing->delete();
     }
+
+    public function completeBacking(Backing $backing): Backing
+    {
+        return DB::transaction(function () use ($backing) {
+            if ($backing->status === 'completed') {
+                return $backing->load([
+                    'campaign',
+                    'tier',
+                    'user',
+                ]);
+            }
+
+            $backing->update([
+                'status' => 'completed',
+            ]);
+
+            $backing->campaign()->increment(
+                'collected_amount',
+                $backing->amount
+            );
+
+            return $backing->fresh([
+                'campaign',
+                'tier',
+                'user',
+            ]);
+        });
+    }
 }
