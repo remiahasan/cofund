@@ -58,5 +58,9 @@ Route::prefix('v1')->group(function () {
 
         //transaction
         Route::apiResource('transaction', TransactionController::class);
+        Route::patch('transaction/{transaction}/mock-payment',[TransactionController::class, 'mockPayment']);
+
+        //notification
+        Route::apiResource('notification', NotificationController::class)->only(['index','show','update','destroy']);
     });
 });

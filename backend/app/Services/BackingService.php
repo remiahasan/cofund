@@ -6,6 +6,7 @@ use App\Models\Backing;
 use App\Models\Campaign;
 use App\Models\CampaignTier;
 use App\Models\User;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -32,6 +33,9 @@ class BackingService
                 'amount'=>$data['amount'],
                 'status'=>'pending',
             ]);
+
+            app(TransactionService::class)->storePaymentTransaction($backing);
+
             return $backing->load([
                 'campaign',
                 'tier',
@@ -66,31 +70,4 @@ class BackingService
         return $backing->delete();
     }
 
-    public function completeBacking(Backing $backing): Backing
-    {
-        return DB::transaction(function () use ($backing) {
-            if ($backing->status === 'completed') {
-                return $backing->load([
-                    'campaign',
-                    'tier',
-                    'user',
-                ]);
-            }
-
-            $backing->update([
-                'status' => 'completed',
-            ]);
-
-            $backing->campaign()->increment(
-                'collected_amount',
-                $backing->amount
-            );
-
-            return $backing->fresh([
-                'campaign',
-                'tier',
-                'user',
-            ]);
-        });
-    }
 }

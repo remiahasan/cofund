@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Backing;
 use App\Models\Campaign;
 use App\Models\Transaction;
+use App\Models\Notification;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -62,5 +63,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
     }
 }

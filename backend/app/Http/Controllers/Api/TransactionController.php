@@ -39,7 +39,7 @@ class TransactionController extends Controller
      */
     public function store(StoreTransactionRequest $request): JsonResponse
     {
-        $transaction = $this->transactionService->createTransaction($request->validated(), auth()->user());
+        $transaction = $this->transactionService->storeTransaction($request->validated(), auth()->user());
         return response()->json([
             'success' => true,
             'message' => 'Transaksi berhasil dibuat',
@@ -83,4 +83,16 @@ class TransactionController extends Controller
             'message' => 'Transaksi berhasil dihapus',
         ]);
     }
+
+    public function mockPayment(Transaction $transaction): JsonResponse
+    {
+        $transaction = $this->transactionService->mockPayment($transaction);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pembayaran berhasil.',
+            'data' => new TransactionResource($transaction),
+        ]);
+    }
+
 }
