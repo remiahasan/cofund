@@ -5,6 +5,9 @@ namespace App\Services;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use App\Models\Campaign;
+use App\Models\Backing;
+use App\Models\CampaignUpdate;
 
 class NotificationService
 {
@@ -31,45 +34,116 @@ class NotificationService
         ]);
     }
 
-    public function sendCampaignSuccess(Campaign $campaign): void
+    public function sendCampaignApproved(Campaign $campaign): void
     {
-        $this->create(
+        $this->createNotification(
             $campaign->creator,
             'campaign_success',
-            'Campaign berhasil',
-            'Dana campaign telah dicairkan.',
+            'Campaign disetujui',
+            'Campaign anda telah disetujui dan dapat dilihat oleh publik.',
             [
                 'campaign_id' => $campaign->id,
             ]
         );
     }
 
-    public function sendCampaignFailed(Campaign $campaign): void
+    public function sendCampaignRejected(Campaign $campaign): void
     {
-        foreach ($campaign->backings as $backing) {
-            $this->create(
-                $backing->user,
-                'campaign_failed',
-                'Campaign gagal',
-                'Dana backing telah dikembalikan.',
+        $this->createNotification(
+            $campaign->creator,
+            'campaign_failed',
+            'Campaign ditolak',
+            'Campaign anda tidak disetujui dan tidak dapat dilihat oleh publik.',
+            [
+                'campaign_id' => $campaign->id,
+            ]
+        );
+    }
+
+    public function sendNewBacker(Backing $backing): void
+    {
+        $this->createNotification(
+            $backing->campaign->creator,
+            'new_backing',
+            'Backing baru',
+            "{$backing->campaign->name} telah melakukan backing kepada campaign anda.",
+            [
+                'campaign_id' => $backing->campaign_id,
+                'backing_id' => $backing->id,
+            ]
+        );
+    }
+
+    public function backingConfirmed(Backing $backing): void
+    {
+        $this->createNotification(
+            $backing->user,
+            'backing_success',
+            'Backing berhasil',
+            "Backing anda telah dikonfirmasi.",
+            [
+                'campaign_id' => $backing->campaign_id,
+                'backing_id' => $backing->id,
+            ]
+        );
+    }
+
+    public function sendCampaignDisbursed(Campaign $campaign): void
+    {
+        $this->createNotification(
+            $campaign->creator,
+            'campaign_disbursed',
+            'Dana berhasil dicairkan',
+            'Campaign anda berhasil mencapai target dan dana telah dicairkan.',
+            [
+                'campaign_id' => $campaign->id,
+            ]
+        );
+    }
+
+    public function sendCampaignUpdate(Campaign $campaign): void
+    {
+        foreach ($campaign->backers as $backer) {
+            $this->createNotification(
+                $backer,
+                'campaign_update',
+                'Update campaign',
+                $update->title,
                 [
-                    'campaign_id' => $campaign->id,
+                    'campaign_id' => $update->campaign_id,
+                    'update_id' => $update->id,
                 ]
             );
         }
     }
 
-    public function sendDeadlineNotification(Campaign $campaign): void
+    public function sendCampaignRefunded(Campaign $campaign): void
     {
-        $days = now()->diffInDays($campaign->deadline);
         foreach ($campaign->backings as $backing) {
-            $this->create(
+            $this->createNotification(
+                $backing->user,
+                'campaign_refunded',
+                'Dana campaign berhasil dikembalikan',
+                'Dana campaign anda telah dikembalikan karena campaign gagal mencapai target.',
+                [
+                    'campaign_id' => $campaign->id,
+                    'backing_id' => $backing->id,
+                ]
+            );
+        }
+    }
+
+    public function sendCampaignDeadlineReminder(Campaign $campaign, int $days): void
+    {
+        foreach ($campaign->backings as $backing) {
+            $this->createNotification(
                 $backing->user,
                 'deadline',
                 "Deadline H-{$days}",
                 "Campaign {$campaign->title} akan berakhir {$days} hari lagi.",
                 [
                     'campaign_id' => $campaign->id,
+                    'day'=> $days,
                 ]
             );
         }

@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use App\Events\NewBackingCreated;
 
 class BackingService
 {
@@ -35,6 +36,7 @@ class BackingService
             ]);
 
             app(TransactionService::class)->storePaymentTransaction($backing);
+            event(new NewBackingCreated($backing));
 
             return $backing->load([
                 'campaign',

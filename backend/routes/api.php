@@ -49,6 +49,9 @@ Route::prefix('v1')->group(function () {
         //Campaign
         Route::apiResource('campaign', CampaignController::class);
 
+        // Campaign Updates
+        Route::apiResource('campaign.update', CampaignUpdateController::class)->shallow();
+
         //Campaign Tiers
         Route::apiResource('campaign.tier', CampaignTierController::class)->shallow();
 

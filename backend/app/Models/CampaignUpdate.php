@@ -11,7 +11,13 @@ class CampaignUpdate extends Model
 {
     use HasFactory;
 
-    public function campaign()
+    protected $fillable = [
+        'title',
+        'body',
+        'campaign_id',
+    ];
+
+    public function campaign(): BelongsTo
     {
         return $this->belongsTo(Campaign::class);
     }

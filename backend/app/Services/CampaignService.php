@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
 use App\Models\CampaignImage;
+use App\Events\CampaignApproved;
+use App\Events\CampaignRejected;
 
 class CampaignService
 {
@@ -91,13 +93,28 @@ class CampaignService
 
     public function updateCampaign(Campaign $campaign, array $data): Campaign
     {
-        if(isset($data['title'])){
-            $data['slug']=Str::slug($data['title']).'-'.$campaign->id;
+        if (isset($data['title'])) {
+            $data['slug'] = Str::slug($data['title']) . '-' . $campaign->id;
         }
 
+        $oldStatus = $campaign->status;
         $campaign->updateCampaign($data);
+        $campaign->refresh();
 
-        return $campaign->fresh([
+        if (
+            $oldStatus !== 'active' &&
+            $campaign->status === 'active'
+        ) {
+            event(new CampaignApproved($campaign));
+        }
+        if (
+            $oldStatus !== 'rejected' &&
+            $campaign->status === 'rejected'
+        ) {
+            event(new CampaignRejected($campaign));
+        }
+
+        return $campaign->load([
             'creator',
             'category',
             'images'

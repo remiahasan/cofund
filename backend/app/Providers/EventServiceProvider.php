@@ -18,6 +18,30 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        CampaignApproved::class => [
+            SendCampaignApprovedNotification::class,
+        ],
+        CampaignRejected::class => [
+            SendCampaignRejectedNotification::class,
+        ],
+        NewBackingCreated::class => [
+            SendNewBackingNotification::class,
+        ],
+        BackingConfirmed::class => [
+            SendBackingConfirmedNotification::class,
+        ],
+        CampaignUpdated::class => [
+            SendCampaignUpdatedNotification::class,
+        ],
+        CampaignDeadlineReminder::class => [
+            SendCampaignDeadlineReminder::class,
+        ],
+        CampaignDisbursed::class => [
+            SendCampaignDisbursedNotification::class,
+        ],
+        CampaignRefunded::class => [
+            SendCampaignRefundedNotification::class,
+        ],
     ];
 
     /**

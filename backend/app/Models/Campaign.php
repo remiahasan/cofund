@@ -51,17 +51,17 @@ class Campaign extends Model
         return $this->hasMany(CampaignImage::class);
     }
 
-    public function updates()
+    public function updates():HasMany
     {
         return $this->hasMany(CampaignUpdate::class);
     }
 
-    public function tiers()
+    public function tiers():HasMany
     {
         return $this->hasMany(CampaignTier::class);
     }
 
-    public function backings()
+    public function backings():HasMany
     {
         return $this->hasMany(Backing::class);
     }

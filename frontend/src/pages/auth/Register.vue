@@ -25,6 +25,10 @@ async function register() {
         console.log(error);
     }
 }
+
+function goToLogin() {
+    router.push("/login");
+}
 </script>
 
 
@@ -53,7 +57,7 @@ async function register() {
                     </div>
                 </form>
                 <div class="text-center pt-4">
-                    <p>Sudah punya akun? <a class="text-blue-700 font-semibold" href="">Masuk</a></p>
+                    <p>Sudah punya akun? <a class="text-blue-700 font-semibold" @click="goToLogin">Masuk</a></p>
                 </div>
             </div>
             <div class="justify-items-end">

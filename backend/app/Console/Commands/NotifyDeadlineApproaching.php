@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\Campaign;
 use App\Services\NotificationService;
 use Carbon\Carbon;
+use App\Events\CampaignDeadlineReminder;
 
 class NotifyDeadlineApproaching extends Command
 {
@@ -34,9 +35,8 @@ class NotifyDeadlineApproaching extends Command
                 now()->addDay()->toDateString(),
             ])
             ->each(function (Campaign $campaign) {
-                NotificationService::sendDeadlineNotification(
-                    $campaign
-                );
+                $days = now()->diffInDays($campaign->deadline);
+                event(new CampaignDeadlineReminder($campaign, $days));
             });
         return self::SUCCESS;
     }

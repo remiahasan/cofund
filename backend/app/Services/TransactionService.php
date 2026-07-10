@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\Campaign;
 use Exception;
+use App\Events\BackingConfirmed;
+use App\Events\CampaignDisbursed;
+use App\Events\CampaignRefunded;
 
 class TransactionService
 {
@@ -72,6 +75,7 @@ class TransactionService
             ]);
 
             $this->processEscrow($transaction);
+            event(new BackingConfirmed($transaction->backing));
 
             return $transaction->fresh([
                 'user',
@@ -158,6 +162,8 @@ class TransactionService
                 'reference_id' => 'FEE-' . uniqid(),
             ]);
         });
+
+        event(new CampaignDisbursed($campaign));
     }
 
     public function refundTransaction(Campaign $campaign): void
@@ -192,5 +198,7 @@ class TransactionService
                 ]);
             }
         });
+
+        event(new CampaignRefunded($campaign));
     }
 }
