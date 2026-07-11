@@ -15,6 +15,15 @@ class AdminCampaignController extends Controller
         protected AdminCampaignService $service
     ){}
 
+    public function index(Request $request)
+    {
+        return AdminCampaignResource::collection(
+            $this->service->index(
+                $request->status
+            )
+        );
+    }
+
     public function review()
     {
         return AdminCampaignResource::collection(
@@ -27,9 +36,11 @@ class AdminCampaignController extends Controller
         return new AdminCampaignResource(
             $campaign->load([
                 'creator',
+                'category',
                 'tiers',
                 'updates',
-                'backings.user'
+                'backings.user',
+                'images'
             ])
         );
     }
@@ -48,6 +59,13 @@ class AdminCampaignController extends Controller
                 $campaign,
                 $request->validated()['reason']
             )
+        );
+    }
+
+    public function forceFail(Campaign $campaign)
+    {
+        return new AdminCampaignResource(
+            $this->service->forceFail($campaign)
         );
     }
 }

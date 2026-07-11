@@ -97,32 +97,15 @@ Route::prefix('v1')->group(function () {
         Route::get('dashboard/funding-chart', [AdminOverviewController::class, 'fundingChart'])
             ->name('admin.dashboard.funding-chart');
 
-        Route::apiResource('user', AdminUserController::class)->only([
-            'index',
-            'show',
-            'destroy',
-        ]);
+        Route::apiResource('user', AdminUserController::class)->only(['index', 'show', 'destroy']);
 
-        Route::apiResource('campaign', AdminCampaignController::class)->except([
-            'store',
-            'update',
-        ]);
+        Route::apiResource('campaign', AdminCampaignController::class)->except(['store','update']);
 
         Route::prefix('campaign/{campaign}')->group(function () {
-            Route::patch(
-                'approve',
-                [AdminCampaignController::class, 'approve']
-            )->name('admin.campaign.approve');
-
-            Route::patch(
-                'reject',
-                [AdminCampaignController::class, 'reject']
-            )->name('admin.campaign.reject');
-            
-            Route::get(
-                'campaign/review',
-                [AdminCampaignController::class,'review']
-            );
+            Route::patch('approve', [AdminCampaignController::class, 'approve'])->name('admin.campaign.approve');
+            Route::patch('reject', [AdminCampaignController::class, 'reject'])->name('admin.campaign.reject');
+            Route::get('campaign/review',[AdminCampaignController::class,'review']);
+            Route::patch('campaign/{campaign}/force-fail',[AdminCampaignController::class,'forceFail'])->name('admin.campaign.force-fail');
         });
     });
 });

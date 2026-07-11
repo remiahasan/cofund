@@ -15,14 +15,22 @@ class AdminCampaignResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'=>$this->id,
-            'title'=>$this->title,
-            'creator'=>$this->creator->name,
-            'target_amount'=>$this->target_amount,
-            'collected_amount'=>$this->collected_amount,
-            'status'=>$this->status,
-            'deadline'=>$this->deadline,
-            'created_at'=>$this->created_at,
-        ];
+        'id'=>$this->id,
+        'title'=>$this->title,
+        'creator'=>[
+            'id'=>$this->creator->id,
+            'name'=>$this->creator->name,
+            'email'=>$this->creator->email,
+        ],
+        'category'=>$this->category->name,
+        'target_amount'=>$this->target_amount,
+        'collected_amount'=>$this->collected_amount,
+        'status'=>$this->status,
+        'deadline'=>$this->deadline,
+        'total_backers'=>$this->backings->count(),
+        'tiers'=>$this->tiers,
+        'updates'=>$this->updates,
+        'backings'=>$this->backings,
+    ];
     }
 }
