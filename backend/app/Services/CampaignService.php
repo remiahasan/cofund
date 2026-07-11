@@ -60,7 +60,7 @@ class CampaignService
     public function storeCampaign(array $data, User $user): Campaign
     {
         return DB::transaction(function () use ($data, $user) {
-            $campaign = Campaign::storeCampaign([
+            $campaign = Campaign::create([
                 'user_id' => $user->id,
                 'category_id' => $data['category_id'],
                 'title' => $data['title'],
@@ -98,7 +98,7 @@ class CampaignService
         }
 
         $oldStatus = $campaign->status;
-        $campaign->updateCampaign($data);
+        $campaign->update($data);
         $campaign->refresh();
 
         if (
@@ -128,7 +128,7 @@ class CampaignService
                 Storage::disk('public')->delete($image->url);
             }
 
-            return $campaign->deleteCampaign();
+            return $campaign->delete();
         });
     }
 }

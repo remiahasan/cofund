@@ -14,7 +14,7 @@ class CategoryService
 
     public function storeCategory(array $data): Category
     {
-        return Category::storeCategory([
+        return Category::create([
             'name' => $data['name'],
             'slug' => Str::slug($data['name']),
         ]);
@@ -22,7 +22,7 @@ class CategoryService
 
     public function updateCategory(Category $category, array $data): Category
     {
-        $category->updateCategory([
+        $category->update([
             'name' => $data['name'],
             'slug' => Str::slug($data['name']),
         ]);
@@ -32,6 +32,6 @@ class CategoryService
 
     public function deleteCategory(Category $category): bool
     {
-        return $category->deleteCategory();
+        return $category->delete();
     }
 }

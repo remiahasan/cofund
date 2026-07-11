@@ -16,7 +16,7 @@ class CampaignTierService
 
     public function storeCampaignTier(Campaign $campaign,array $data):CampaignTier
     {
-        return $campaign->tiers()->storeCampaignTier($data);
+        return $campaign->tiers()->create($data);
     }
 
     public function showCampaignTier(CampaignTier $tier):CampaignTier
@@ -26,12 +26,12 @@ class CampaignTierService
 
     public function updateCampaignTier(CampaignTier $tier, array $data):CampaignTier
     {
-        $tier->updateCampaignTier($data);
+        $tier->update($data);
         return $tier->fresh();
     }
 
     public function deleteCampaignTier(CampaignTier $tier):bool
     {
-        return $tier->deleteCampaignTier();
+        return $tier->delete();
     }
 }
