@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\BackingController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\CampaignUpdateController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\WalletController;
 
 
 /*
@@ -73,5 +75,14 @@ Route::prefix('v1')->group(function () {
             Route::patch('/{notification}/read', [NotificationController::class, 'markAsRead']);
             Route::delete('/{notification}', [NotificationController::class, 'destroy']);
         });
+
+        // Dashboard
+        Route::get('dashboard/creator', [DashboardController::class, 'creator'])->name('dashboard.creator');
+        Route::get('dashboard/funding-chart', [DashboardController::class, 'fundingChart'])->name('dashboard.funding-chart');
+        Route::get('dashboard/backer', [DashboardController::class, 'backer'])->name('dashboard.backer');
+
+        //Wallet
+        Route::get('/wallet', [WalletController::class, 'index']);
+        Route::post('/wallet/withdraw', [WalletController::class, 'withdraw']);
     });
 });
