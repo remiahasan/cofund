@@ -8,13 +8,15 @@ const routes = [
     {
         path: '/register',
         name: 'register',
-        component: Register
+        component: Register,
+        meta:{ requiresAuth: false }
     },
 
     {
         path: '/login',
         name: 'login',
-        component: Login
+        component: Login,
+        meta:{ requiresAuth: false }
     },
     {
         path: '/',
@@ -23,7 +25,8 @@ const routes = [
             {
                 path: 'dashboard',
                 name: 'dashboard',
-                component: DashboardBacker
+                component: DashboardBacker,
+                meta:{ requiresAuth: true }
             }
         ]
     }
@@ -32,6 +35,19 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes
+})
+
+router.beforeEach((to, from, next) => {
+    const token = localStorage.getItem('token')
+    const guestOnlyPages = ['register', 'login']
+    
+    if (to.meta.requiresAuth && !token) {
+        next({ name: 'login' })
+    } else if (guestOnlyPages.includes(to.name) && token) {
+        next({ name: 'dashboard' })
+    } else {
+        next()
+    }
 })
 
 export default router

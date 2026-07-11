@@ -1,6 +1,6 @@
 <script setup>
-import Sidebar from '@/components/layout/sidebar.vue';
-import Header from '@/components/layout/header.vue';
+import Sidebar from '@/components/layout/Sidebar.vue';
+import Header from '@/components/layout/Header.vue';
 
 import { ref } from 'vue';
 

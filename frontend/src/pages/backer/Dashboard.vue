@@ -1,5 +1,5 @@
 <script setup>
-import Card from '@/components/card.vue'
+import Card from '@/components/Card.vue'
 import { ref } from 'vue'
 
 const dummyData = ref([
