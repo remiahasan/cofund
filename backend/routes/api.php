@@ -13,6 +13,10 @@ use App\Http\Controllers\Api\CampaignUpdateController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\WalletController;
+use App\Http\Controllers\Api\AdminController\AdminOverviewController;
+use App\Http\Controllers\Api\AdminController\AdminUserController;
+use App\Http\Controllers\Api\AdminController\AdminCampaignController;
+use App\Http\Requests\Admin\RejectCampaignRequest;
 
 
 /*
@@ -84,5 +88,41 @@ Route::prefix('v1')->group(function () {
         //Wallet
         Route::get('/wallet', [WalletController::class, 'index']);
         Route::post('/wallet/withdraw', [WalletController::class, 'withdraw']);
+    });
+
+    Route::prefix('admin')->middleware(['auth:sanctum','admin'])->group(function () {
+        Route::get('dashboard', [AdminOverviewController::class, 'index'])
+        ->name('admin.dashboard.overview');
+
+        Route::get('dashboard/funding-chart', [AdminOverviewController::class, 'fundingChart'])
+            ->name('admin.dashboard.funding-chart');
+
+        Route::apiResource('user', AdminUserController::class)->only([
+            'index',
+            'show',
+            'destroy',
+        ]);
+
+        Route::apiResource('campaign', AdminCampaignController::class)->except([
+            'store',
+            'update',
+        ]);
+
+        Route::prefix('campaign/{campaign}')->group(function () {
+            Route::patch(
+                'approve',
+                [AdminCampaignController::class, 'approve']
+            )->name('admin.campaign.approve');
+
+            Route::patch(
+                'reject',
+                [AdminCampaignController::class, 'reject']
+            )->name('admin.campaign.reject');
+            
+            Route::get(
+                'campaign/review',
+                [AdminCampaignController::class,'review']
+            );
+        });
     });
 });
