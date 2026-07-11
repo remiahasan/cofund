@@ -5,10 +5,11 @@ namespace App\Listeners;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Services\NotificationService;
-use App\Events\NewBacking;
+use App\Events\NewBackingCreated;
 
-class SendNewBackingNotification
+class SendNewBackingNotification implements ShouldQueue
 {
+    use InteractsWithQueue;
     /**
      * Create the event listener.
      */
@@ -20,7 +21,7 @@ class SendNewBackingNotification
     /**
      * Handle the event.
      */
-    public function handle(object $event): void
+    public function handle(NewBackingCreated $event): void
     {
         app(NotificationService::class)
             ->sendNewBacking($event->backing);

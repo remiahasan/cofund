@@ -8,18 +8,19 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Models\Campaign;
 
-class CampaignRefunded extends Mailable
+class CampaignDeadlineReminderMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
      */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct(
+        public Campaign $campaign,
+        public int $days
+    ) {}
 
     /**
      * Get the message envelope.
@@ -27,7 +28,7 @@ class CampaignRefunded extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Campaign Refunded',
+            subject: 'Reminder Deadline Campaign',
         );
     }
 
@@ -37,7 +38,7 @@ class CampaignRefunded extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.campaign-refunded',
+            markdown: 'emails.campaign-deadline-reminder',
         );
     }
 

@@ -7,8 +7,9 @@ use Illuminate\Queue\InteractsWithQueue;
 use App\Services\NotificationService;
 use App\Events\CampaignUpdated;
 
-class SendCampaignUpdatedNotification
+class SendCampaignUpdatedNotification implements ShouldQueue
 {
+    use InteractsWithQueue;
     /**
      * Create the event listener.
      */
@@ -20,7 +21,7 @@ class SendCampaignUpdatedNotification
     /**
      * Handle the event.
      */
-    public function handle(object $event): void
+    public function handle(CampaignUpdated $event): void
     {
         app(NotificationService::class)
             ->sendCampaignUpdated($event->campaign);

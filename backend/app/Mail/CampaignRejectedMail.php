@@ -8,18 +8,19 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Models\Campaign;
 
-class CampaignRejectedMail extends Mailable
+class CampaignRejectedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
      */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct(
+        public Campaign $campaign,
+        public string $reason
+    ) {}
 
     /**
      * Get the message envelope.
@@ -27,7 +28,7 @@ class CampaignRejectedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Campaign Rejected',
+            subject: 'Campaign Anda Ditolak',
         );
     }
 
@@ -37,7 +38,7 @@ class CampaignRejectedMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.campaign-rejected',
+            markdown: 'emails.campaign-rejected',
         );
     }
 

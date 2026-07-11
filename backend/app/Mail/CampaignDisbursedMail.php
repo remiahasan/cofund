@@ -8,18 +8,18 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Models\Campaign;
 
-class CampaignDisbursed extends Mailable
+class CampaignDisbursedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
      */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct(
+        public Campaign $campaign
+    ) {}
 
     /**
      * Get the message envelope.
@@ -27,7 +27,7 @@ class CampaignDisbursed extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Campaign Successfuly Fundraised',
+            subject: 'Dana Campaign Telah Dicairkan',
         );
     }
 
@@ -37,7 +37,7 @@ class CampaignDisbursed extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.campaign-disbursed',
+            markdown: 'emails.campaign-disbursed',
         );
     }
 

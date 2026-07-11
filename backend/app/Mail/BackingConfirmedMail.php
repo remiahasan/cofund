@@ -8,18 +8,18 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Models\Backing;
 
-class BackingConfirmedMail extends Mailable
+class BackingConfirmedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
      */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct(
+        public Backing $backing
+    ) {}
 
     /**
      * Get the message envelope.
@@ -27,7 +27,7 @@ class BackingConfirmedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Backing Confirmed',
+            subject: 'Backing Anda Berhasil Dikonfirmasi',
         );
     }
 
@@ -37,7 +37,7 @@ class BackingConfirmedMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.backing-confirmed',
+            markdown: 'emails.backing-confirmed',
         );
     }
 

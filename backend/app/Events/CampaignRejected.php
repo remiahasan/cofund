@@ -19,7 +19,8 @@ class CampaignRejected
      * Create a new event instance.
      */
     public function __construct(
-        public Campaign $campaign
+        public Campaign $campaign,
+        public string $reason
     ) {}
 
     /**

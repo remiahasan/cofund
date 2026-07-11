@@ -6,9 +6,12 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Services\NotificationService;
 use App\Events\CampaignApproved;
+use App\Mail\CampaignApprovedMail;
+use Illuminate\Support\Facades\Mail;
 
-class SendCampaignApprovedNotification
+class SendCampaignApprovedNotification implements ShouldQueue
 {
+    use InteractsWithQueue;
     /**
      * Create the event listener.
      */
@@ -20,9 +23,11 @@ class SendCampaignApprovedNotification
     /**
      * Handle the event.
      */
-    public function handle(object $event): void
+    public function handle(CampaignApproved $event): void
     {
         app(NotificationService::class)
             ->sendCampaignApproved($event->campaign);
+
+        Mail::to($event->campaign->creator->email)->queue(new CampaignApprovedMail($event->campaign));
     }
 }

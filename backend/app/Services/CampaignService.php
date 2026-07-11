@@ -111,7 +111,7 @@ class CampaignService
             $oldStatus !== 'rejected' &&
             $campaign->status === 'rejected'
         ) {
-            event(new CampaignRejected($campaign));
+            event(new CampaignRejected($campaign, $reason));
         }
 
         return $campaign->load([

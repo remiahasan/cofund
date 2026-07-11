@@ -7,6 +7,24 @@ use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
 
+use App\Events\CampaignApproved;
+use App\Events\CampaignRejected;
+use App\Events\NewBackingCreated;
+use App\Events\BackingConfirmed;
+use App\Events\CampaignUpdated;
+use App\Events\CampaignDeadlineReminder;
+use App\Events\CampaignDisbursed;
+use App\Events\CampaignRefunded;
+
+use App\Listeners\SendCampaignApprovedNotification;
+use App\Listeners\SendCampaignRejectedNotification;
+use App\Listeners\SendNewBackingNotification;
+use App\Listeners\SendBackingConfirmedNotification;
+use App\Listeners\SendCampaignUpdatedNotification;
+use App\Listeners\SendCampaignDeadlineReminder;
+use App\Listeners\SendCampaignDisbursedNotification;
+use App\Listeners\SendCampaignRefundedNotification;
+
 class EventServiceProvider extends ServiceProvider
 {
     /**

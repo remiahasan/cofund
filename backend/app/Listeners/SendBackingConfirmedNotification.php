@@ -6,9 +6,12 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Services\NotificationService;
 use App\Events\BackingConfirmed;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\BackingConfirmedMail;
 
-class SendBackingConfirmedNotification
+class SendBackingConfirmedNotification implements ShouldQueue
 {
+    use InteractsWithQueue;
     /**
      * Create the event listener.
      */
@@ -20,9 +23,11 @@ class SendBackingConfirmedNotification
     /**
      * Handle the event.
      */
-    public function handle(object $event): void
+    public function handle(BackingConfirmed $event): void
     {
         app(NotificationService::class)
             ->sendBackingConfirmed($event->backing);
+
+        Mail::to($event->backing->user->email)->queue(new BackingConfirmedMail($event->backing));
     }
 }

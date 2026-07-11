@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\CampaignController;
 use App\Http\Controllers\Api\CampaignTierController;
 use App\Http\Controllers\Api\BackingController;
 use App\Http\Controllers\Api\TransactionController;
+use App\Http\Controllers\Api\CampaignUpdateController;
+use App\Http\Controllers\Api\NotificationController;
 
 
 /*
@@ -63,7 +65,13 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('transaction', TransactionController::class);
         Route::patch('transaction/{transaction}/mock-payment',[TransactionController::class, 'mockPayment']);
 
-        //notification
-        Route::apiResource('notification', NotificationController::class)->only(['index','show','update','destroy']);
+        // Notification
+        Route::prefix('notification')->group(function () {
+            Route::get('/', [NotificationController::class, 'index']);
+            Route::get('/unread-count', [NotificationController::class, 'unreadCount']);
+            Route::get('/{notification}', [NotificationController::class, 'show']);
+            Route::patch('/{notification}/read', [NotificationController::class, 'markAsRead']);
+            Route::delete('/{notification}', [NotificationController::class, 'destroy']);
+        });
     });
 });
