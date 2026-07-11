@@ -13,6 +13,7 @@
     "@primeuix/themes": "^2.0.3",
     "@tailwindcss/vite": "^4.3.2",
     "axios": "^1.18.1",
+    "dayjs": "^1.11.21",
     "pinia": "^3.0.4",
     "primeicons": "^7.0.0",
     "primevue": "^4.5.5",

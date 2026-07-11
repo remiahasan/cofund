@@ -1,0 +1,166 @@
+<script setup>
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
+import { useCampaign } from '@/composables/useCampaign'
+import { useCampaignForm } from '@/composables/useCampaignForm'
+
+const router = useRouter()
+const toast = useToast()
+const { categories, fetchCategories } = useCampaign()
+
+const {
+    step, isSubmitting, basicInfo, images, imagePreviews, tiers, errors,
+    addTier, removeTier, addImages, removeImage, nextStep, prevStep, submitCampaign,
+} = useCampaignForm()
+
+onMounted(fetchCategories)
+
+function onImageChange(e) {
+    addImages(e.target.files)
+    e.target.value = ''
+}
+
+async function handleSubmit() {
+    try {
+        await submitCampaign()
+        toast.success('Kampanye berhasil dibuat sebagai draft')
+        router.push({ name: 'dashboard.creator' })
+    } catch (error) {
+        toast.error(error.response?.data?.message || 'Gagal membuat kampanye')
+    }
+}
+</script>
+
+<template>
+    <div class="max-w-4xl mx-auto px-6 py-10">
+        <h1 class="text-2xl font-bold mb-2">Buat Kampanye</h1>
+        <p class="text-gray-500 mb-8">Langkah {{ step }} dari 3</p>
+
+        <div v-if="step === 1" class="flex flex-col gap-4">
+            <div>
+                <label class="font-medium">Judul Kampanye</label>
+                <input v-model="basicInfo.title" maxlength="100" class="w-full border rounded-sm px-4 py-2 mt-1" placeholder="Judul kampanye (maks 100 karakter)" />
+                <span v-if="errors.basicInfo.title" class="text-red-500 text-xs">{{ errors.basicInfo.title }}</span>
+            </div>
+
+            <div>
+                <label class="font-medium">Kategori</label>
+                <select v-model="basicInfo.category_id" class="w-full border rounded-sm px-4 py-2 mt-1">
+                    <option value="">Pilih kategori</option>
+                    <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                </select>
+                <span v-if="errors.basicInfo.category_id" class="text-red-500 text-xs">{{ errors.basicInfo.category_id }}</span>
+            </div>
+
+            <div>
+                <label class="font-medium">Deskripsi</label>
+                <textarea v-model="basicInfo.description" rows="6" class="w-full border rounded-sm px-4 py-2 mt-1" placeholder="Deskripsi lengkap kampanye"></textarea>
+                <span v-if="errors.basicInfo.description" class="text-red-500 text-xs">{{ errors.basicInfo.description }}</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="font-medium">Target Dana (Rp)</label>
+                    <input v-model.number="basicInfo.target_amount" type="number" min="100000" class="w-full border rounded-sm px-4 py-2 mt-1" placeholder="Minimal Rp100.000" />
+                    <span v-if="errors.basicInfo.target_amount" class="text-red-500 text-xs">{{ errors.basicInfo.target_amount }}</span>
+                </div>
+                <div>
+                    <label class="font-medium">Deadline</label>
+                    <input v-model="basicInfo.deadline" type="date" class="w-full border rounded-sm px-4 py-2 mt-1" />
+                    <span v-if="errors.basicInfo.deadline" class="text-red-500 text-xs">{{ errors.basicInfo.deadline }}</span>
+                </div>
+            </div>
+
+            <div>
+                <label class="font-medium">Video URL (opsional, YouTube/Vimeo)</label>
+                <input v-model="basicInfo.video_url" class="w-full border rounded-sm px-4 py-2 mt-1" placeholder="https://youtube.com/..." />
+                <span v-if="errors.basicInfo.video_url" class="text-red-500 text-xs">{{ errors.basicInfo.video_url }}</span>
+            </div>
+
+            <div class="pt-4 flex justify-end">
+                <button @click="nextStep" type="button" class="bg-blue-700 text-white px-6 py-2 rounded-sm font-semibold">Lanjut</button>
+            </div>
+        </div>
+
+        <div v-if="step === 2" class="flex flex-col gap-8">
+            <div>
+                <label class="font-medium">Foto Kampanye (1-5 foto)</label>
+                <input type="file" accept="image/*" multiple @change="onImageChange" class="mt-1 block" />
+                <span v-if="errors.images" class="text-red-500 text-xs">{{ errors.images }}</span>
+
+                <div class="flex flex-wrap gap-3 mt-3">
+                    <div v-for="(src, i) in imagePreviews" :key="i" class="relative">
+                        <img :src="src" class="w-24 h-24 object-cover rounded-lg border" />
+                        <button @click="removeImage(i)" type="button" class="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 text-xs">✕</button>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <label class="font-medium">Tier Reward (minimal 1)</label>
+                    <button @click="addTier" type="button" class="text-blue-700 text-sm font-semibold">+ Tambah Tier</button>
+                </div>
+
+                <div v-for="(tier, i) in tiers" :key="i" class="border rounded-xl p-4 mb-3 flex flex-col gap-2">
+                    <div class="flex justify-between">
+                        <span class="font-semibold text-sm">Tier {{ i + 1 }}</span>
+                        <button v-if="tiers.length > 1" @click="removeTier(i)" type="button" class="text-red-500 text-xs">Hapus</button>
+                    </div>
+                    <input v-model="tier.name" placeholder="Nama tier (mis. Early Bird)" class="w-full border rounded-sm px-3 py-2" />
+                    <span v-if="errors.tiers[i]?.name" class="text-red-500 text-xs">{{ errors.tiers[i].name }}</span>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <input v-model.number="tier.min_amount" type="number" placeholder="Min. nominal (Rp)" class="w-full border rounded-sm px-3 py-2" />
+                            <span v-if="errors.tiers[i]?.min_amount" class="text-red-500 text-xs">{{ errors.tiers[i].min_amount }}</span>
+                        </div>
+                        <div>
+                            <input v-model.number="tier.quota" type="number" placeholder="Kuota (0 = tidak terbatas)" class="w-full border rounded-sm px-3 py-2" />
+                            <span v-if="errors.tiers[i]?.quota" class="text-red-500 text-xs">{{ errors.tiers[i].quota }}</span>
+                        </div>
+                    </div>
+
+                    <textarea v-model="tier.reward_description" rows="2" placeholder="Deskripsi reward" class="w-full border rounded-sm px-3 py-2"></textarea>
+                    <span v-if="errors.tiers[i]?.reward_description" class="text-red-500 text-xs">{{ errors.tiers[i].reward_description }}</span>
+                </div>
+            </div>
+
+            <div class="flex justify-between pt-2">
+                <button @click="prevStep" type="button" class="border px-6 py-2 rounded-sm font-semibold">Kembali</button>
+                <button @click="nextStep" type="button" class="bg-blue-700 text-white px-6 py-2 rounded-sm font-semibold">Lanjut ke Preview</button>
+            </div>
+        </div>
+
+        <div v-if="step === 3" class="flex flex-col gap-6">
+            <h2 class="text-xl font-semibold">Preview Kampanye</h2>
+
+            <div class="flex gap-3 flex-wrap">
+                <img v-for="(src, i) in imagePreviews" :key="i" :src="src" class="w-28 h-28 object-cover rounded-lg border" />
+            </div>
+
+            <div>
+                <h3 class="text-2xl font-bold">{{ basicInfo.title }}</h3>
+                <p class="text-gray-500 mt-1">Target: Rp{{ Number(basicInfo.target_amount || 0).toLocaleString('id-ID') }} · Deadline: {{ basicInfo.deadline }}</p>
+                <p class="text-gray-700 mt-4 whitespace-pre-line">{{ basicInfo.description }}</p>
+            </div>
+
+            <div>
+                <h4 class="font-semibold mb-2">Tier ({{ tiers.length }})</h4>
+                <ul class="list-disc pl-5 text-sm text-gray-700">
+                    <li v-for="(tier, i) in tiers" :key="i">{{ tier.name }} — Rp{{ Number(tier.min_amount || 0).toLocaleString('id-ID') }}</li>
+                </ul>
+            </div>
+
+            <p class="text-xs text-gray-400">Kampanye akan tersimpan sebagai <strong>draft</strong>. Anda bisa mengajukan review kapan saja setelah ini dari dashboard.</p>
+
+            <div class="flex justify-between pt-2">
+                <button @click="prevStep" type="button" class="border px-6 py-2 rounded-sm font-semibold">Kembali</button>
+                <button @click="handleSubmit" :disabled="isSubmitting" type="button" class="bg-blue-700 text-white px-6 py-2 rounded-sm font-semibold disabled:bg-gray-300">
+                    {{ isSubmitting ? 'Menyimpan...' : 'Simpan sebagai Draft' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</template>

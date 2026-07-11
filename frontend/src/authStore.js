@@ -27,8 +27,6 @@ export const useAuthStore = defineStore('auth', () => {
         isLoading.value = true
         try {
             const res = await authService.login(email, password)
-            // NOTE: sesuaikan res.data.user / res.data.token dengan
-            // bentuk response Laravel yang sebenarnya setelah backend fix
             setSession(res.data.user, res.data.token)
             return res
         } finally {

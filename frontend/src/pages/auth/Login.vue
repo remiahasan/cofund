@@ -7,6 +7,7 @@ import * as yup from "yup";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
+import { dashboardRouteByRole } from "@/router";
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -26,7 +27,8 @@ const login = handleSubmit(async (values) => {
     try {
         await authStore.login(values.email, values.password);
         toast.success("Login berhasil");
-        router.push("/dashboard");
+        const role = authStore.user?.role;
+        router.push({ name: dashboardRouteByRole[role] || "dashboard.backer" });
     } catch (error) {
         toast.error(error.response?.data?.message || "Email atau password salah");
     }
