@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class CategoryService
 {
-    public function getCategories(): LengthAwarePaginator
+    public function getCategories()
     {
         return Category::latest()->get();
     }

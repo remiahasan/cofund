@@ -37,7 +37,7 @@ class CampaignDisbursedMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.campaign-disbursed',
+            markdown: 'email.campaign-disbursed',
         );
     }
 

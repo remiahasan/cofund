@@ -26,19 +26,21 @@ watch(filters, loadCampaigns)
 </script>
 
 <template>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-        <h1 class="text-2xl font-bold mb-6">Kampanye Aktif</h1>
-
-        <div class="flex flex-wrap gap-4 mb-8">
-            <select v-model="filters.category_id" class="border rounded-sm px-4 py-2">
-                <option value="">Semua Kategori</option>
-                <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-            </select>
-
-            <select v-model="filters.sort" class="border rounded-sm px-4 py-2">
-                <option value="newest">Terbaru</option>
-                <option value="popular">Terpopuler</option>
-            </select>
+    <div class="mx-auto px-4 sm:px-6 py-10">
+        <div class="md:flex md:justify-between "> 
+            <h1 class="text-2xl font-bold mb-6">Kampanye Aktif</h1>
+    
+            <div class="flex flex-wrap gap-4 mb-8">
+                <select v-model="filters.category_id" class="border rounded-sm px-4 py-2">
+                    <option value="">Semua Kategori</option>
+                    <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                </select>
+    
+                <select v-model="filters.sort" class="border rounded-sm px-4 py-2">
+                    <option value="newest">Terbaru</option>
+                    <option value="popular">Terpopuler</option>
+                </select>
+            </div>
         </div>
 
         <SkeletonCard v-if="isLoading" />

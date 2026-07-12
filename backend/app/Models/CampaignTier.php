@@ -18,6 +18,7 @@ class CampaignTier extends Model
         'name',
         'minimum_amount',
         'quota',
+        'remaining_quota',
         'reward_description',
     ];
 
@@ -30,4 +31,14 @@ class CampaignTier extends Model
     {
         return $this->hasMany(Backing::class);
     }
+
+    public function isUnlimited(): bool
+    {
+        return $this->quota === 0;
+    }
+
+    public function hasRemainingQuota(): bool
+    {
+    return $this->isUnlimited() || $this->remaining_quota > 0;
+}
 }

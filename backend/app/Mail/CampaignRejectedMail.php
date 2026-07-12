@@ -19,7 +19,7 @@ class CampaignRejectedMail extends Mailable implements ShouldQueue
      */
     public function __construct(
         public Campaign $campaign,
-        public string $reason
+        public string $rejection_reason
     ) {}
 
     /**
@@ -38,7 +38,7 @@ class CampaignRejectedMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.campaign-rejected',
+            markdown: 'email.campaign-rejected',
         );
     }
 

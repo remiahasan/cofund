@@ -14,8 +14,9 @@ use Illuminate\Http\Request;
 class CampaignController extends Controller
 {
     public function __construct(
-        protected CampaignService $campaignService
+        private readonly CampaignService $campaignService
     ) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -28,16 +29,16 @@ class CampaignController extends Controller
             ])
         );
 
-        return response()->json([
-            'success' => true,
-            'data' => CampaignResource::collection($campaigns),
-            'meta' => [
+        return $this->success(
+            'Daftar Campaign Berhasil Diambil',
+            CampaignResource::collection($campaigns),
+            [
                 'current_page' => $campaigns->currentPage(),
                 'last_page' => $campaigns->lastPage(),
                 'per_page' => $campaigns->perPage(),
                 'total' => $campaigns->total(),
-            ],
-        ]);
+            ]
+        );
     }
 
     /**
@@ -47,11 +48,12 @@ class CampaignController extends Controller
     {
         $campaign = $this->campaignService->storeCampaign($request->validated(), auth()->user());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Campaign berhasil dibuat',
-            'data' => new CampaignResource($campaign),
-        ],201);
+        return $this->success(
+            'Campaign berhasil dibuat',
+            new CampaignResource($campaign),
+            null,
+            201
+        );
     }
 
     /**
@@ -61,10 +63,10 @@ class CampaignController extends Controller
     {
         $campaign = $this->campaignService->showCampaign($campaign);
 
-        return response()->json([
-            'success' => true,
-            'data' => new CampaignResource($campaign),
-        ]);
+        return $this->success(
+            'Campaign berhasil diambil',
+            new CampaignResource($campaign)
+        );
     }
 
     /**
@@ -72,15 +74,14 @@ class CampaignController extends Controller
      */
     public function update(UpdateCampaignRequest $request, Campaign $campaign): JsonResponse
     {
-        $this->authorize('update',$campaign);
+        $this->authorize('update', $campaign);
 
         $campaign = $this->campaignService->updateCampaign($campaign, $request->validated());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Campaign berhasil diupdate',
-            'data' => new CampaignResource($campaign),
-        ]);
+        return $this->success(
+            'Campaign berhasil diupdate',
+            new CampaignResource($campaign)
+        );
     }
 
     /**
@@ -88,13 +89,24 @@ class CampaignController extends Controller
      */
     public function destroy(Campaign $campaign): JsonResponse
     {
-        $this->authorize('delete',$campaign);
+        $this->authorize('delete', $campaign);
 
         $this->campaignService->deleteCampaign($campaign);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Campaign berhasil dihapus',
-        ]);
+        return $this->success('Campaign berhasil dihapus');
+    }
+
+    public function toReview(Campaign $campaign): JsonResponse
+    {
+        $this->authorize('update', $campaign);
+
+        $campaign = $this->campaignService->submitToReview($campaign);
+
+        return $this->success(
+            'Campaign berhasil diajukan untuk review',
+            new CampaignResource($campaign)
+        );
     }
 }
+
+

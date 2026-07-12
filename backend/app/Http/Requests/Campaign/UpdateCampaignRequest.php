@@ -28,7 +28,6 @@ class UpdateCampaignRequest extends FormRequest
             'target_amount' => 'sometimes|numeric|min:10000',
             'deadline' => 'sometimes|date|after:today',
             'video_url' => 'nullable|url',
-            'status' => 'sometimes|in:draft,review,active,success,failed',
         ];
     }
 }

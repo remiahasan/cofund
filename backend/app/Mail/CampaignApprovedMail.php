@@ -37,7 +37,7 @@ class CampaignApprovedMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.campaign-approved',
+            markdown: 'email.campaign-approved',
         );
     }
 

@@ -13,7 +13,7 @@ use Illuminate\Http\JsonResponse;
 class TransactionController extends Controller
 {
     public function __construct(
-        private TransactionService $transactionService
+        private readonly TransactionService $transactionService
     ) {}
     
     /**
@@ -22,16 +22,17 @@ class TransactionController extends Controller
     public function index(): JsonResponse
     {
         $transactions = $this->transactionService->getTransaction();
-        return response()->json([
-            'success' => true,
-            'data' => TransactionResource::collection($transactions),
-            'meta' => [
+        
+        return $this->success(
+            'Daftar Transaksi Berhasil Diambil',
+            TransactionResource::collection($transactions),
+            [
                 'current_page' => $transactions->currentPage(),
                 'last_page' => $transactions->lastPage(),
                 'per_page' => $transactions->perPage(),
                 'total' => $transactions->total(),
-            ],
-        ]);
+            ]
+        );
     }
 
     /**
@@ -40,11 +41,11 @@ class TransactionController extends Controller
     public function store(StoreTransactionRequest $request): JsonResponse
     {
         $transaction = $this->transactionService->storeTransaction($request->validated(), auth()->user());
-        return response()->json([
-            'success' => true,
-            'message' => 'Transaksi berhasil dibuat',
-            'data' => new TransactionResource($transaction),
-        ]);
+        
+        return $this->success(
+            'Transaksi berhasil dibuat',
+            new TransactionResource($transaction)
+        );
     }
 
     /**
@@ -53,10 +54,11 @@ class TransactionController extends Controller
     public function show(Transaction $transaction): JsonResponse
     {
         $transaction = $this->transactionService->showTransaction($transaction);
-        return response()->json([
-            'success' => true,
-            'data' => new TransactionResource($transaction),
-        ]);
+        
+        return $this->success(
+            'Transaksi berhasil diambil',
+            new TransactionResource($transaction)
+        );
     }
 
     /**
@@ -65,11 +67,11 @@ class TransactionController extends Controller
     public function update(UpdateTransactionRequest $request, Transaction $transaction): JsonResponse
     {
         $transaction = $this->transactionService->updateTransaction($transaction, $request->validated());
-        return response()->json([
-            'success' => true,
-            'message' => 'Transaksi berhasil diupdate',
-            'data' => new TransactionResource($transaction),
-        ]);
+        
+        return $this->success(
+            'Transaksi berhasil diupdate',
+            new TransactionResource($transaction)
+        );
     }
 
     /**
@@ -78,21 +80,18 @@ class TransactionController extends Controller
     public function destroy(Transaction $transaction): JsonResponse
     {
         $this->transactionService->deleteTransaction($transaction);
-        return response()->json([
-            'success' => true,
-            'message' => 'Transaksi berhasil dihapus',
-        ]);
+        
+        return $this->success('Transaksi berhasil dihapus');
     }
 
     public function mockPayment(Transaction $transaction): JsonResponse
     {
         $transaction = $this->transactionService->mockPayment($transaction);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Pembayaran berhasil.',
-            'data' => new TransactionResource($transaction),
-        ]);
+        return $this->success(
+            'Pembayaran berhasil.',
+            new TransactionResource($transaction)
+        );
     }
-
 }
+

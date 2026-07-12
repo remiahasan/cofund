@@ -25,13 +25,5 @@ class CampaignImage extends Model
     {
         return $this->belongsTo(Campaign::class);
     }
-
-    protected $appends = [
-        'url'
-    ];
-
-    public function getImageUrlAttribute(){
-        return asset("storage/".$this->image);
-    }
     
 }

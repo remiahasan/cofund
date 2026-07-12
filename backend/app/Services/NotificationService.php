@@ -101,11 +101,12 @@ class NotificationService
         );
     }
 
-    public function sendCampaignUpdate(Campaign $campaign): void
+    public function sendCampaignUpdate(CampaignUpdate $update): void
     {
-        foreach ($campaign->backers as $backer) {
+        $campaign = $update->campaign;
+        foreach ($campaign->backings as $backing) {
             $this->createNotification(
-                $backer,
+                $backing->user,
                 'campaign_update',
                 'Update campaign',
                 $update->title,
@@ -161,5 +162,12 @@ class NotificationService
     public function deleteNotification(Notification $notification): bool
     {
         return $notification->delete();
+    }
+
+    public function getUnreadCount(User $user): int
+    {
+        return $user->notifications()
+            ->whereNull('read_at')
+            ->count();
     }
 }

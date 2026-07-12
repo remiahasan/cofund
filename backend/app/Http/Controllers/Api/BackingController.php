@@ -9,14 +9,16 @@ use App\Http\Requests\Backing\StoreBackingRequest;
 use App\Http\Requests\Backing\UpdateBackingRequest;
 use App\Http\Resources\BackingResource;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\Backing;
 use App\Models\Campaign;
+use App\Models\CampaignTier;
 
 class BackingController extends Controller
 {
-    public function __construct(protected BackingService $backingService)
-    {}
+    public function __construct(
+        private readonly BackingService $backingService
+    ) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -24,33 +26,38 @@ class BackingController extends Controller
     {
         $backings = $this->backingService->getBackings($campaign);
 
-        return response()->json([
-            'success' => true,
-            'data' => BackingResource::collection($backings),
-            'meta' => [
+        return $this->success(
+            'Daftar Backing Berhasil Diambil',
+            BackingResource::collection($backings),
+            [
                 'current_page' => $backings->currentPage(),
                 'per_page' => $backings->perPage(),
                 'last_page' => $backings->lastPage(),
                 'total' => $backings->total(),
-            ],
-        ]);
+            ]
+        );
     }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(StoreBackingRequest $request): JsonResponse
-    {
-        $backing = $this->backingService->storeBacking(
-            $request->validated(),
-            auth()->user()
-        );
+    {   
+        try {
+            $backing = $this->backingService->storeBacking(
+                $request->validated(),
+                auth()->user()
+            );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Backing berhasil dibuat',
-            'data' => new BackingResource($backing),
-        ],201);
+            return $this->success(
+                'Backing berhasil dibuat',
+                new BackingResource($backing),
+                null,
+                201
+            );
+        } catch (\Exception $e) {
+            return $this->error($e->getMessage(), 422);
+        }
     }
 
     /**
@@ -60,10 +67,10 @@ class BackingController extends Controller
     {
         $backing = $this->backingService->showBacking($backing);
 
-        return response()->json([
-            'success' => true,
-            'data' => new BackingResource($backing),
-        ]);
+        return $this->success(
+            'Backing berhasil diambil',
+            new BackingResource($backing)
+        );
     }
 
     /**
@@ -76,11 +83,10 @@ class BackingController extends Controller
             $request->validated()
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Backing berhasil diupdate',
-            'data' => new BackingResource($backing),
-        ]);
+        return $this->success(
+            'Backing berhasil diupdate',
+            new BackingResource($backing)
+        );
     }
 
     /**
@@ -90,20 +96,17 @@ class BackingController extends Controller
     {
         $this->backingService->deleteBacking($backing);
 
-        return response()->json([
-            'success'=>true,
-            'message'=>'Backing berhasil dihapus'
-        ]);
+        return $this->success('Backing berhasil dihapus');
     }
 
     public function complete(Backing $backing): JsonResponse
     {
         $backing = $this->backingService->completeBacking($backing);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Pembayaran berhasil dikonfirmasi',
-            'data' => new BackingResource($backing),
-        ]);
+        return $this->success(
+            'Pembayaran berhasil dikonfirmasi',
+            new BackingResource($backing)
+        );
     }
 }
+

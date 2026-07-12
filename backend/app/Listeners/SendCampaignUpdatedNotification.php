@@ -24,6 +24,6 @@ class SendCampaignUpdatedNotification implements ShouldQueue
     public function handle(CampaignUpdated $event): void
     {
         app(NotificationService::class)
-            ->sendCampaignUpdated($event->campaign);
+            ->sendCampaignUpdate($event->update);
     }
 }

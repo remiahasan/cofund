@@ -38,7 +38,7 @@ class CampaignDeadlineReminderMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.campaign-deadline-reminder',
+            markdown: 'email.campaign-deadline-reminder',
         );
     }
 

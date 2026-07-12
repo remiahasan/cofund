@@ -4,12 +4,11 @@ namespace App\Services;
 
 use App\Models\Campaign;
 use App\Models\CampaignUpdate;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\Events\CampaignUpdated;
 
 class CampaignUpdateService
 {
-    public function getUpdates(Campaign $campaign): LengthAwarePaginator
+    public function getUpdates(Campaign $campaign)
     {
         return $campaign->updates()
             ->latest()

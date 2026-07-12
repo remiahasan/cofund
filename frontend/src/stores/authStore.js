@@ -1,48 +1,85 @@
-import { authService } from "@/services/authService";
-import { defineStore } from "pinia";
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+import { authService } from '@/services/authService'
 
-export const useAuthStore = defineStore("auth", {
-    state: () => ({
-        user: null,
-        token: null,
-    }),
-    getters: {
-        isAuthenticated: (state) => !!state.token,
-    },
-    actions: {
-        setUser(user) {
-            this.user = user;
-            localStorage.setItem("user", JSON.stringify(user));
-        },
-        setToken(token) {
-            this.token = token;
-            localStorage.setItem("token", token);
-        },
-        clearAuth() {
-            this.user = null;
-            this.token = null;
-            localStorage.removeItem("user");
-            localStorage.removeItem("token");
-        },
-        async login(email, password) {
-            try {
-                const response = await authService.login(email, password);
-                this.setUser(response.data.user);
-                this.setToken(response.data.token);
-                return response;
-            } catch (error) {
-                throw error;
-            }
-        },
-        async register(nama, email, password, confirm_password){
-            try {
-                const response = await authService.register(nama, email, password, confirm_password);
-                this.setUser(response.data.user);
-                this.setToken(response.data.token);
-                return response;
-            } catch (error) {
-                throw error;
-            }
+export const useAuthStore = defineStore('auth', () => {
+    const user = ref(JSON.parse(localStorage.getItem('user')) || null)
+    const token = ref(localStorage.getItem('token') || null)
+    const isLoading = ref(false)
+
+    const isAuthenticated = computed(() => !!token.value)
+
+    function setSession(userData, authToken) {
+        user.value = userData
+        token.value = authToken
+        localStorage.setItem('user', JSON.stringify(userData))
+        localStorage.setItem('token', authToken)
+    }
+
+    function clearSession() {
+        user.value = null
+        token.value = null
+        localStorage.removeItem('user')
+        localStorage.removeItem('token')
+    }
+
+    async function login(email, password) {
+        isLoading.value = true
+        try {
+            const res = await authService.login(email, password)
+            setSession(res.data.user, res.data.token)
+            return res
+        } finally {
+            isLoading.value = false
         }
-    },
-});
+    }
+
+    async function register(name, email, password, password_confirmation) {
+        isLoading.value = true
+        try {
+            const res = await authService.register(name, email, password, password_confirmation)
+            return res
+        } finally {
+            isLoading.value = false
+        }
+    }
+
+    async function logout() {
+        try {
+            await authService.logout()
+        } finally {
+            clearSession()
+        }
+    }
+
+    async function fetchProfile() {
+        const res = await authService.getProfile()
+        user.value = res.data
+        localStorage.setItem('user', JSON.stringify(res.data))
+        return res
+    }
+
+    async function forgotPassword(email) {
+        isLoading.value = true
+        try {
+            return await authService.forgotPassword(email)
+        } finally {
+            isLoading.value = false
+        }
+    }
+
+    async function resetPassword(payload) {
+        isLoading.value = true
+        try {
+            return await authService.resetPassword(payload)
+        } finally {
+            isLoading.value = false
+        }
+    }
+
+    return {
+        user, token, isLoading, isAuthenticated,
+        login, register, logout, fetchProfile, setSession, clearSession,
+        forgotPassword, resetPassword,
+    }
+})

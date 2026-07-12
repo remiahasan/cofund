@@ -13,56 +13,51 @@ use Illuminate\Http\Request;
 class AuthController extends Controller
 {
     public function __construct(
-        protected AuthService $authService
+        private readonly AuthService $authService
     ) {}
 
     public function register(RegisterRequest $request): JsonResponse
     {
-        
         $result = $this->authService->registerUser($request->validated());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Register berhasil.',
-            'data' => [
+        return $this->success(
+            'Register berhasil.',
+            [
                 'user' => new UserResource($result['user']),
                 'token' => $result['token'],
             ],
-        ], 201);
+            null,
+            201
+        );
     }
 
     public function login(LoginRequest $request): JsonResponse
     {
         $result = $this->authService->loginUser($request->validated());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Login berhasil.',
-            'data' => [
+        return $this->success(
+            'Login berhasil.',
+            [
                 'user' => new UserResource($result['user']),
                 'token' => $result['token'],
-            ],
-        ]);
+            ]
+        );
     }
 
     public function getAuthenticated(Request $request): JsonResponse
     {
-        return response()->json([
-            'success' => true,
-            'message' => 'Data user berhasil diambil.',
-            'data' => new UserResource(
+        return $this->success(
+            'Data user berhasil diambil.',
+            new UserResource(
                 $this->authService->getAuthenticatedUser($request->user())
-            ),
-        ]);
+            )
+        );
     }
 
     public function logout(Request $request): JsonResponse
     {
         $this->authService->logoutUser($request->user());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Logout berhasil.',
-        ]);
+        return $this->success('Logout berhasil.');
     }
 }

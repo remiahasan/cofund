@@ -14,78 +14,73 @@ use Illuminate\Http\JsonResponse;
 class CampaignTierController extends Controller
 {
     public function __construct(
-        protected CampaignTierService $campaignTierService
+        private readonly CampaignTierService $campaignTierService
     ){}
+
     /**
      * Display a listing of the resource.
      */
-    public function index(Campaign $campaign): JsonResponse
+    public function index(): JsonResponse
     {
-        $tiers = $this->campaignTierService->getCampaignTiers($campaign);
 
-        return response()->json([
-            'success' => true,
-            'data' => CampaignTierResource::collection($tiers),
-            'meta' => [
-                'current_page' => $tiers->currentPage(),
-                'per_page' => $tiers->perPage(),
-                'total' => $tiers->total(),
-                'last_page' => $tiers->lastPage(),
-            ],
-        ]);
+        $tiers = $this->campaignTierService->getCampaignTiers();
+
+        return $this->success('Daftar Campaign Tier Berhasil Diambil', CampaignTierResource::collection($tiers));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreCampaignTierRequest $request, Campaign $campaign): JsonResponse
+    public function store(StoreCampaignTierRequest $request)
     {
-        $tier = $this->campaignTierService->storeCampaignTier($campaign, $request->validated());
+        $campaign = Campaign::findOrFail($request->campaign_id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Tier Berhasil Ditambahkan',
-            'data' => new CampaignTierResource($tier),
-        ], 201);
+        $this->authorize('update', $campaign);
+
+        $campaignTier = $this->campaignTierService->storeCampaignTier(
+            $campaign,
+            $request->validated()
+        );
+
+        dd($campaignTier);
+
+        return $this->success('Campaign Tier berhasil dibuat', new CampaignTierResource($campaignTier));
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(CampaignTier $tier): JsonResponse
+    public function show(CampaignTier $campaign_tier): JsonResponse
     {
-        $tier = $this->campaignTierService->showCampaignTier($tier);
+        $campaign_tier = $this->campaignTierService->showCampaignTier($campaign_tier);
 
-        return response()->json([
-            'success' => true,
-            'data' => new CampaignTierResource($tier),
-        ]);
+        return $this->success(
+            'Detail Campaign Tier Berhasil Diambil',
+            new CampaignTierResource($campaign_tier)
+        );
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCampaignTierRequest $request, CampaignTier $tier): JsonResponse
+    public function update(UpdateCampaignTierRequest $request, CampaignTier $campaign_tier): JsonResponse
     {
-        $tier = $this->campaignTierService->updateCampaignTier($tier, $request->validated());
+        $campaign_tier = $this->campaignTierService->updateCampaignTier($campaign_tier, $request->validated());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Tier Berhasil Diupdate',
-            'data' => new CampaignTierResource($tier),
-        ]);
+        return $this->success(
+            'Tier Berhasil Diupdate',
+            new CampaignTierResource($campaign_tier)
+        );
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(CampaignTier $campaignTier): JsonResponse
+    public function destroy(CampaignTier $campaign_tier): JsonResponse
     {
-        $this->campaignTierService->deleteCampaignTier($campaignTier);
+        $this->campaignTierService->deleteCampaignTier($campaign_tier);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Tier Berhasil Dihapus',
-        ]);
+        return $this->success('Tier Berhasil Dihapus');
     }
 }
+

@@ -14,7 +14,7 @@ class Backing extends Model
     protected $fillable = [
         'user_id',
         'campaign_id',
-        'tier_id',
+        'campaign_tier_id',
         'amount',
         'status',
     ];
@@ -27,7 +27,7 @@ class Backing extends Model
     {
         return $this->belongsTo(Campaign::class);
     }
-    public function tier()
+    public function campaignTier()
     {
         return $this->belongsTo(CampaignTier::class,'campaign_tier_id');
     }

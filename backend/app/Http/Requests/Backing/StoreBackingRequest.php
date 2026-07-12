@@ -23,8 +23,8 @@ class StoreBackingRequest extends FormRequest
     {
         return [
             'campaign_id' => 'required|exists:campaigns,id',
-            'campaign_tier_id' => 'required|exists:campaign_tiers,id',
-            'amount' => 'required|numeric|min:10000',
+            'campaign_tier_id' => 'nullable|exists:campaign_tiers,id',
+            'amount' => 'nullable|numeric|min:10000',
         ];
     }
 }

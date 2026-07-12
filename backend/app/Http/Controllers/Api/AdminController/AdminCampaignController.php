@@ -8,32 +8,37 @@ use App\Services\AdminCampaignService;
 use App\Models\Campaign;
 use App\Http\Resources\AdminCampaignResource;
 use App\Http\Requests\Admin\RejectCampaignRequest;
+use Illuminate\Http\JsonResponse;
 
 class AdminCampaignController extends Controller
 {
     public function __construct(
-        protected AdminCampaignService $service
+        private readonly AdminCampaignService $service
     ){}
 
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
-        return AdminCampaignResource::collection(
-            $this->service->index(
-                $request->status
-            )
+        $campaigns = $this->service->index($request->status);
+
+        return $this->success(
+            'Daftar campaign admin berhasil diambil',
+            AdminCampaignResource::collection($campaigns)
         );
     }
 
-    public function review()
+    public function review(): JsonResponse
     {
-        return AdminCampaignResource::collection(
-            $this->service->reviewQueue()
+        $campaigns = $this->service->reviewQueue();
+
+        return $this->success(
+            'Antrean review campaign berhasil diambil',
+            AdminCampaignResource::collection($campaigns)
         );
     }
 
-    public function show(Campaign $campaign)
+    public function show(Campaign $campaign): JsonResponse
     {
-        return new AdminCampaignResource(
+        $data = new AdminCampaignResource(
             $campaign->load([
                 'creator',
                 'category',
@@ -43,29 +48,45 @@ class AdminCampaignController extends Controller
                 'images'
             ])
         );
+
+        return $this->success('Detail campaign admin berhasil diambil', $data);
     }
 
-    public function approve(Campaign $campaign)
+    public function approve(Campaign $campaign): JsonResponse
     {
-        return new AdminCampaignResource(
-            $this->service->approve($campaign)
+        $data = $this->service->approve($campaign);
+
+        return $this->success(
+            'Campaign berhasil disetujui',
+            new AdminCampaignResource($data)
         );
     }
 
-    public function reject(RejectCampaignRequest $request, Campaign $campaign)
+    public function reject(Request $request, Campaign $campaign): JsonResponse
     {
-        return new AdminCampaignResource(
-            $this->service->reject(
-                $campaign,
-                $request->validated()['reason']
-            )
+        $validated = $request->validate([
+            'reason' => 'required|string|max:255',
+        ]);
+
+        $data = $this->service->reject(
+            $campaign,
+            $validated['reason']
+        );
+
+        return $this->success(
+            'Campaign berhasil ditolak',
+            new AdminCampaignResource($data)
         );
     }
 
-    public function forceFail(Campaign $campaign)
+    public function forceFail(Campaign $campaign): JsonResponse
     {
-        return new AdminCampaignResource(
-            $this->service->forceFail($campaign)
+        $data = $this->service->forceFail($campaign);
+
+        return $this->success(
+            'Campaign berhasil dipaksa gagal',
+            new AdminCampaignResource($data)
         );
     }
 }
+

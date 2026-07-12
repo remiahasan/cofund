@@ -18,38 +18,32 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): JsonResponse
+    public function index()
     {
-        return response()->json([
-            'success' => true,
-            'message' => 'Daftar Kategori Berhasil Diambil',
-            'data' => CategoryResource::collection($this->categoryService->getCategories()),
-        ]);
+        $categories = $this->categoryService->getCategories();
+        $data = CategoryResource::collection($categories);
+
+        return $this->success('Daftar Kategori Berhasil Diambil', $data);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreCategoryRequest $request): JsonResponse
+    public function store(StoreCategoryRequest $request)
     {
         $category = $this->categoryService->storeCategory($request->validated());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Kategori Berhasil Ditambahkan',
-            'data' => new CategoryResource($category),
-        ],201);
+        return $this->success('Kategori berhasil ditambahkan', new CategoryResource($category));
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Category $category): JsonResponse
+    public function show(Category $category)
     {
-        return response()->json([
-            'success' => true,
-            'data' => new CategoryResource($category),
-        ]);
+        $category = new CategoryResource($category);
+
+        return $this->success('Kategori berhasil diambil', $category);
     }
 
     /**
@@ -59,11 +53,7 @@ class CategoryController extends Controller
     {
         $category = $this->categoryService->updateCategory($category, $request->validated());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Kategori Berhasil Diupdate',
-            'data' => new CategoryResource($category),
-        ]);
+        return $this->success('Kategori berhasil diupdate', new CategoryResource($category));
     }
 
     /**
@@ -73,9 +63,6 @@ class CategoryController extends Controller
     {
         $this->categoryService->deleteCategory($category);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Kategori Berhasil Dihapus',
-        ]);
+        return $this->success('Kategori berhasil dihapus');
     }
 }

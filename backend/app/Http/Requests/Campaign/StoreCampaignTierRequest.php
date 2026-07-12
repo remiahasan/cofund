@@ -22,9 +22,10 @@ class StoreCampaignTierRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'campaign_id' => 'required|exists:campaigns,id',
             'name' => 'required|string|max:100',
             'minimum_amount' => 'required|numeric|min:100000',
-            'quota' => 'required|integer|min:1',
+            'quota' => 'required|integer|min:0',
             'reward_description' => 'required|string',
         ];
     }

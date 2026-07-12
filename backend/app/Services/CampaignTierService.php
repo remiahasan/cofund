@@ -4,30 +4,36 @@ namespace App\Services;
 
 use App\Models\Campaign;
 use App\Models\CampaignTier;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 
 class CampaignTierService
 {
-    public function getCampaignTiers(Campaign $campaign): LengthAwarePaginator
+    public function getCampaignTiers()
     {
-        return $campaign->tiers()->latest()->paginate(10);
+        return CampaignTier::with('campaign')->get();
     }
 
-    public function storeCampaignTier(Campaign $campaign,array $data):CampaignTier
+    public function storeCampaignTier(Campaign $campaign, array $data): CampaignTier
     {
+        if($data['quota'] == 0) {
+            $data['quota'] = 0;
+            $data['remaining_quota'] = 0;
+        } else {
+            $data['remaining_quota'] = $data['quota'];
+        }
+
         return $campaign->tiers()->create($data);
     }
 
-    public function showCampaignTier(CampaignTier $tier):CampaignTier
+    public function showCampaignTier(CampaignTier $campaign_tier):CampaignTier
     {
-        return $tier;
+        return $campaign_tier;
     }
 
-    public function updateCampaignTier(CampaignTier $tier, array $data):CampaignTier
+    public function updateCampaignTier(CampaignTier $campaign_tier, array $data):CampaignTier
     {
-        $tier->update($data);
-        return $tier->fresh();
+        $campaign_tier->update($data);
+        return $campaign_tier->fresh();
     }
 
     public function deleteCampaignTier(CampaignTier $tier):bool

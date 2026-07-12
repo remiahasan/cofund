@@ -2,8 +2,10 @@
 import Logo from "@/icon/Group 47602.svg";
 import imageRegister from "@/images/gambarauth2.png"
 import Input from "@/components/Input.vue";
+import InfoModal from "@/components/common/InfoModal.vue";
 import { useForm, useField } from "vee-validate";
 import * as yup from "yup";
+import { ref } from "vue";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
@@ -11,6 +13,8 @@ import { useToast } from "vue-toastification";
 const authStore = useAuthStore();
 const router = useRouter();
 const toast = useToast();
+
+const showSuccessModal = ref(false);
 
 const schema = yup.object({
     nama: yup.string().required("Nama lengkap wajib diisi"),
@@ -31,14 +35,17 @@ const { value: confirm_password, errorMessage: confirmPasswordError } = useField
 const register = handleSubmit(async (values) => {
     try {
         await authStore.register(values.nama, values.email, values.password, values.confirm_password);
-        toast.success("Registrasi berhasil, silakan login");
-        router.push("/login");
+        showSuccessModal.value = true;
     } catch (error) {
         toast.error(error.response?.data?.message || "Registrasi gagal, coba lagi");
     }
 });
 
 function goToLogin() {
+    router.push("/login");
+}
+
+function handleModalConfirm() {
     router.push("/login");
 }
 </script>
@@ -72,5 +79,16 @@ function goToLogin() {
                 <img class="rounded-2xl shadow-2xl" :src="imageRegister" alt="">
             </div>
         </div>
+
+        <InfoModal
+            :visible="showSuccessModal"
+            @update:visible="val => showSuccessModal = val"
+            title="Registrasi Berhasil"
+            message="Verifikasi telah dikirim melalui email. Silakan buka email Anda dan verifikasi akun, lalu login."
+            button-text="Login Sekarang"
+            icon="pi-envelope"
+            icon-color="text-blue-600"
+            @confirm="handleModalConfirm"
+        />
     </div>
 </template>

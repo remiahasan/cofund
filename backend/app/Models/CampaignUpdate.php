@@ -13,7 +13,7 @@ class CampaignUpdate extends Model
 
     protected $fillable = [
         'title',
-        'body',
+        'content',
         'campaign_id',
     ];
 

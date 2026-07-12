@@ -12,31 +12,32 @@ use Illuminate\Http\JsonResponse;
 class AdminUserController extends Controller
 {
     public function __construct(
-        protected AdminUserService $service
+        private readonly AdminUserService $service
     ) {}
 
     public function index(): JsonResponse
     {
         $users = $this->service->index();
-        return response()->json([
-            'success' => true,
-            'data' => AdminUserResource::collection($users),
-            'meta' => [
+
+        return $this->success(
+            'Daftar user admin berhasil diambil',
+            AdminUserResource::collection($users),
+            [
                 'current_page' => $users->currentPage(),
                 'last_page' => $users->lastPage(),
                 'per_page' => $users->perPage(),
                 'total' => $users->total(),
-            ],
-        ]);
+            ]
+        );
     }
 
     public function show(User $user): JsonResponse
     {
-        return response()->json([
-            'success' => true,
-            'data' => new AdminUserDetailResource(
+        return $this->success(
+            'Detail user admin berhasil diambil',
+            new AdminUserDetailResource(
                 $this->service->show($user)
-            ),
-        ]);
+            )
+        );
     }
 }

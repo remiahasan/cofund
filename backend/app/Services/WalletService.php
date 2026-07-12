@@ -15,6 +15,21 @@ class WalletService
         ];
     }
 
+    public function topUp(User $user, float $amount): Transaction
+    {
+        return DB::transaction(function () use ($user, $amount) {
+            $user->increment('balance', $amount);
+
+            return Transaction::create([
+                'user_id'      => $user->id,
+                'type'         => 'topup',
+                'amount'       => $amount,
+                'status'       => 'success',
+                'reference'    => 'TOPUP-' . strtoupper(\Illuminate\Support\Str::random(10)),
+            ]);
+        });
+    }
+
     public function withdraw(User $user, float $amount): Transaction
     {
         if ($user->balance < $amount) {
@@ -26,11 +41,11 @@ class WalletService
             $user->decrement('balance', $amount);
 
             return Transaction::create([
-                'user_id' => $user->id,
-                'type' => 'withdraw',
-                'amount' => $amount,
-                'status' => 'completed',
-                'description' => 'Mock withdraw',
+                'user_id'   => $user->id,
+                'type'      => 'withdraw',
+                'amount'    => $amount,
+                'status'    => 'success',
+                'reference' => 'WD-' . strtoupper(\Illuminate\Support\Str::random(10)),
             ]);
 
         });

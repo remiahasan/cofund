@@ -37,7 +37,7 @@ class BackingConfirmedMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.backing-confirmed',
+            markdown: 'email.backing-confirmed',
         );
     }
 

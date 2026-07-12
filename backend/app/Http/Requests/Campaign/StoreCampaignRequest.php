@@ -28,8 +28,6 @@ class StoreCampaignRequest extends FormRequest
             'target_amount' => 'required|numeric|min:100000',
             'deadline' => 'required|date|after:'.now()->addDays(7)->toDateString(),
             'video_url' => 'nullable|url',
-            'images' => 'required|array|min:1|max:5',
-            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048',
         ];
     }
 }

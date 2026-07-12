@@ -37,7 +37,7 @@ class CampaignRefundedMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.campaign-refunded',
+            markdown: 'email.campaign-refunded',
         );
     }
 

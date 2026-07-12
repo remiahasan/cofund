@@ -13,7 +13,7 @@ use App\Http\Resources\DashboardBackerResource;
 class DashboardController extends Controller
 {
     public function __construct(
-        protected DashboardService $dashboardService
+        private readonly DashboardService $dashboardService
     ) {}
 
     public function creator(): JsonResponse
@@ -21,15 +21,15 @@ class DashboardController extends Controller
         $dashboard = $this->dashboardService
             ->creatorDashboard(auth()->user());
 
-        return response()->json([
-            'success' => true,
-            'data' => [
+        return $this->success(
+            'Dashboard creator berhasil diambil',
+            [
                 'summary' => $dashboard['summary'],
                 'campaigns' => DashboardCreatorResource::collection(
                     $dashboard['campaigns']
                 ),
-            ],
-        ]);
+            ]
+        );
     }
 
     public function fundingChart(): JsonResponse
@@ -37,10 +37,10 @@ class DashboardController extends Controller
         $chart = $this->dashboardService
             ->creatorFundingChart(auth()->user());
 
-        return response()->json([
-            'success' => true,
-            'data' => DashboardChartResource::collection($chart),
-        ]);
+        return $this->success(
+            'Chart pendanaan creator berhasil diambil',
+            DashboardChartResource::collection($chart)
+        );
     }
 
     public function backer(): JsonResponse
@@ -48,9 +48,10 @@ class DashboardController extends Controller
         $summary = $this->dashboardService
             ->backerSummary(auth()->user());
 
-        return response()->json([
-            'success' => true,
-            'data' => new DashboardBackerResource($summary),
-        ]);
+        return $this->success(
+            'Dashboard backer berhasil diambil',
+            new DashboardBackerResource($summary)
+        );
     }
 }
+

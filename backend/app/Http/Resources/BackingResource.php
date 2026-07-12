@@ -23,11 +23,11 @@ class BackingResource extends JsonResource
                 'title'=>$this->campaign->title,
                 'slug'=>$this->campaign->slug,
             ],
-            'tier'=>[
-                'id'=>$this->tier->id,
-                'title'=>$this->tier->title,
-                'amount'=>$this->tier->amount,
-            ],
+            'tier'=> $this->campaignTier ? [
+                'id'=>$this->campaignTier->id,
+                'name'=>$this->campaignTier->name,
+                'minimum_amount'=>$this->campaignTier->minimum_amount,
+            ] : null,
             'user'=>[
                 'id'=>$this->user->id,
                 'name'=>$this->user->name,

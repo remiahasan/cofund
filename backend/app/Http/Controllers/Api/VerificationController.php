@@ -3,58 +3,36 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use Illuminate\Auth\Events\Verified;
+use App\Services\VerificationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class VerificationController extends Controller
 {
+    public function __construct(
+        private readonly VerificationService $verificationService
+    ) {}
+
     public function verify(Request $request, $id, $hash): JsonResponse
     {
-        $user = User::findOrFail($id);
+        $result = $this->verificationService->verifyUser((int) $id, $hash);
 
-        if (!hash_equals(sha1($user->getEmailForVerification()),$hash)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Link verifikasi tidak valid.',
-            ], 401);
+        if ($result['status'] === 'invalid') {
+            return $this->error($result['message'], null, 401);
         }
 
-        if ($user->hasVerifiedEmail()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Email sudah diverifikasi sebelumnya.'
-            ]);
-        }
-
-        $user->markEmailAsVerified();
-
-        event(new Verified($user));
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Email berhasil diverifikasi.'
-        ]);
+        return $this->success($result['message']);
     }
 
     public function resend(Request $request): JsonResponse
     {
-        $user = $request->user();
+        $sent = $this->verificationService->resendVerification($request->user());
 
-        if ($user->hasVerifiedEmail()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Email sudah diverifikasi.'
-            ], 400);
+        if (!$sent) {
+            return $this->error('Email sudah diverifikasi.', null, 400);
         }
 
-        $user->sendEmailVerificationNotification();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Email verifikasi berhasil dikirim ulang.'
-        ]);
+        return $this->success('Email verifikasi berhasil dikirim ulang.');
     }
-
 }
+

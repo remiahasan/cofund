@@ -11,8 +11,9 @@ use Illuminate\Http\JsonResponse;
 class NotificationController extends Controller
 {
     public function __construct(
-        protected NotificationService $notificationService
+        private readonly NotificationService $notificationService
     ) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -21,25 +22,17 @@ class NotificationController extends Controller
         $notifications = $this->notificationService
             ->getNotifications(auth()->user());
 
-        return response()->json([
-            'success' => true,
-            'data' => NotificationResource::collection($notifications),
-            'meta' => [
+        return $this->success(
+            'Daftar notifikasi berhasil diambil.',
+            NotificationResource::collection($notifications),
+            [
                 'current_page' => $notifications->currentPage(),
                 'last_page' => $notifications->lastPage(),
                 'per_page' => $notifications->perPage(),
                 'total' => $notifications->total(),
-            ],
-        ]);
+            ]
+        );
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    // public function store(Request $request)
-    // {
-    //     //
-    // }
 
     /**
      * Display the specified resource.
@@ -47,12 +40,11 @@ class NotificationController extends Controller
     public function show(Notification $notification): JsonResponse
     {
         abort_if($notification->user_id !== auth()->id(), 403);
-        return response()->json([
-            'success' => true,
-            'data' => new NotificationResource(
-                $notification->load('user')
-            ),
-        ]);
+        
+        return $this->success(
+            'Notifikasi berhasil diambil.',
+            new NotificationResource($notification->load('user'))
+        );
     }
 
     /**
@@ -64,11 +56,10 @@ class NotificationController extends Controller
         $notification = $this->notificationService
             ->markAsRead($notification);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Notifikasi berhasil ditandai telah dibaca.',
-            'data' => new NotificationResource($notification),
-        ]);
+        return $this->success(
+            'Notifikasi berhasil ditandai telah dibaca.',
+            new NotificationResource($notification)
+        );
     }
 
     /**
@@ -80,22 +71,19 @@ class NotificationController extends Controller
         $this->notificationService
             ->deleteNotification($notification);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Notifikasi berhasil dihapus.',
-        ]);
+        return $this->success('Notifikasi berhasil dihapus.');
     }
 
     public function unreadCount(): JsonResponse
     {
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'unread_count' => auth()->user()
-                    ->notifications()
-                    ->whereNull('read_at')
-                    ->count(),
-            ],
-        ]);
+        $count = $this->notificationService->getUnreadCount(auth()->user());
+
+        return $this->success(
+            'Jumlah notifikasi belum dibaca berhasil diambil.',
+            [
+                'unread_count' => $count,
+            ]
+        );
     }
 }
+

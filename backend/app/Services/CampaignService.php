@@ -13,6 +13,10 @@ use App\Models\CampaignImage;
 use App\Events\CampaignApproved;
 use App\Events\CampaignRejected;
 
+use App\Events\CampaignRefunded;
+use App\Jobs\DisburseCampaignJob;
+use App\Jobs\RefundBackersJob;
+
 class CampaignService
 {
     public function getCampaigns(array $filters = []): LengthAwarePaginator
@@ -72,17 +76,7 @@ class CampaignService
                 'video_url' => $data['video_url'] ?? null,
                 'status' => 'draft',
             ]);
-
-            foreach ($data['images'] as $index => $image) {
-                $path = $image->store('campaigns', 'public');
-
-                CampaignImage::create([
-                    'campaign_id' => $campaign->id,
-                    'url' => $path,
-                    'is_primary' => $index === 0,
-                ]);
-            }
-
+            
             return $campaign->load([
                 'creator',
                 'category',
@@ -111,7 +105,7 @@ class CampaignService
             $oldStatus !== 'rejected' &&
             $campaign->status === 'rejected'
         ) {
-            event(new CampaignRejected($campaign, $reason));
+            event(new CampaignRejected($campaign, $reason ?? 'No reason provided'));
         }
 
         return $campaign->load([
@@ -130,5 +124,68 @@ class CampaignService
 
             return $campaign->delete();
         });
+    }
+
+    public function submitToReview(Campaign $campaign): Campaign
+    {
+        if ($campaign->status !== 'draft') {
+            abort(400, 'Campaign hanya dapat diajukan jika berstatus draft.');
+        }
+
+        $campaign->update(['status' => 'review']);
+
+        return $campaign->fresh();
+    }
+
+    public function approveCampaign(Campaign $campaign): Campaign
+    {
+        if ($campaign->status !== 'review') {
+            abort(400, 'Campaign hanya dapat disetujui jika berstatus review.');
+        }
+
+        $campaign->update(['status' => 'active']);
+
+        event(new CampaignApproved($campaign));
+
+        return $campaign->fresh();
+    }
+
+    public function rejectCampaign(Campaign $campaign, string $reason): Campaign
+    {
+        if ($campaign->status !== 'review') {
+            abort(400, 'Campaign hanya dapat ditolak jika berstatus review.');
+        }
+
+        $campaign->update(['status' => 'draft']);
+
+        event(new CampaignRejected($campaign, $reason));
+
+        return $campaign->fresh();
+    }
+
+    public function markAsSuccess(Campaign $campaign): Campaign
+    {
+        if ($campaign->status !== 'active') {
+            abort(400, 'Campaign hanya dapat disukseskan jika berstatus aktif.');
+        }
+
+        $campaign->update(['status' => 'success']);
+
+        DisburseCampaignJob::dispatch($campaign);
+
+        return $campaign->fresh();
+    }
+
+    public function markAsFailed(Campaign $campaign): Campaign
+    {
+        if ($campaign->status !== 'active') {
+            abort(400, 'Campaign hanya dapat digagalkan jika berstatus aktif.');
+        }
+
+        $campaign->update(['status' => 'failed']);
+
+        RefundBackersJob::dispatch($campaign);
+
+        return $campaign->fresh();
     }
 }

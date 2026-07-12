@@ -24,6 +24,6 @@ class SendNewBackingNotification implements ShouldQueue
     public function handle(NewBackingCreated $event): void
     {
         app(NotificationService::class)
-            ->sendNewBacking($event->backing);
+            ->sendNewBacker($event->backing);
     }
 }

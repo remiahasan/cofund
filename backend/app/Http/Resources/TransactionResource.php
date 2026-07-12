@@ -21,14 +21,14 @@ class TransactionResource extends JsonResource
                 'name' => $this->user->name,
             ],
 
-            'backing' => [
+            'backing' => $this->backing ? [
                 'id' => $this->backing->id,
                 'campaign_id' => $this->backing->campaign_id,
-            ],
+            ] : null,
             'type' => $this->type,
             'amount' => $this->amount,
             'status' => $this->status,
-            'reference_id' => $this->reference_id,
+            'reference' => $this->reference ?? $this->reference_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

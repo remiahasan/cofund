@@ -6,3 +6,12 @@
 Your campaign "{{ $campaign->title }}"
 was rejected by admin.
 </p>
+
+<p>
+Reason: {{ $rejection_reason }}
+</p>
+
+<p>
+Thank you,<br>
+Admin Team
+</p>

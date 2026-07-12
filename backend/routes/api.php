@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\WalletController;
 use App\Http\Controllers\Api\AdminController\AdminOverviewController;
 use App\Http\Controllers\Api\AdminController\AdminUserController;
 use App\Http\Controllers\Api\AdminController\AdminCampaignController;
+use App\Http\Controllers\Api\CampaignImageController;
 use App\Http\Requests\Admin\RejectCampaignRequest;
 
 
@@ -52,23 +53,54 @@ Route::prefix('v1')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
 
         //Category
-        Route::apiResource('category', CategoryController::class); 
+        Route::get('category', [CategoryController::class, 'index']);
+        Route::get('category/{category}', [CategoryController::class, 'show']);
+        Route::post('category', [CategoryController::class, 'store']);
+        Route::put('category/{category}', [CategoryController::class, 'update']);
+        Route::delete('category/{category}', [CategoryController::class, 'destroy']);
 
         //Campaign
-        Route::apiResource('campaign', CampaignController::class);
+        Route::get('campaign', [CampaignController::class, 'index']);
+        Route::get('campaign/{campaign}', [CampaignController::class, 'show']);
+        Route::post('campaign', [CampaignController::class, 'store']);
+        Route::put('campaign/{campaign}', [CampaignController::class, 'update']);
+        Route::delete('campaign/{campaign}', [CampaignController::class, 'destroy']);
+        Route::patch('campaign/{campaign}/to-review', [CampaignController::class, 'toReview']);
+
+        Route::get('campaign/{campaign}/images', [CampaignImageController::class, 'index']);
+        Route::post('campaign/{campaign}/images', [CampaignImageController::class, 'store']);
+        Route::put('/campaign/{campaign}/images/{image}', [CampaignImageController::class, 'update']);
+        Route::delete('/campaign/{campaign}/images/{image}', [CampaignImageController::class, 'destroy']);
+        Route::patch('campaign-image/{image}/set-primary', [CampaignImageController::class, 'setPrimary']);
 
         // Campaign Updates
-        Route::apiResource('campaign.update', CampaignUpdateController::class)->shallow();
+        Route::get('campaign/{campaign}/update', [CampaignUpdateController::class, 'index']);
+        Route::get('campaign/{campaign}/update/{update}', [CampaignUpdateController::class, 'show']);
+        Route::post('campaign/{campaign}/update', [CampaignUpdateController::class, 'store']);
+        Route::put('campaign/{campaign}/update/{update}', [CampaignUpdateController::class, 'update']);
+        Route::delete('campaign/{campaign}/update/{update}', [CampaignUpdateController::class, 'destroy']);
 
         //Campaign Tiers
-        Route::apiResource('campaign.tier', CampaignTierController::class)->shallow();
+        Route::get('campaign-tier', [CampaignTierController::class, 'index']);
+        Route::get('campaign-tier/{campaign_tier}', [CampaignTierController::class, 'show']);
+        Route::post('campaign-tier', [CampaignTierController::class, 'store']);
+        Route::put('campaign-tier/{campaign_tier}', [CampaignTierController::class, 'update']);
+        Route::delete('campaign-tier/{campaign_tier}', [CampaignTierController::class, 'destroy']);
 
         //Backings
-        Route::apiResource('backing', BackingController::class)->shallow();
+        Route::get('campaign/{campaign}/backing', [BackingController::class, 'index']);
+        Route::get('backing/{backing}', [BackingController::class, 'show']);
+        Route::post('backing', [BackingController::class, 'store']);
+        Route::put('backing/{backing}', [BackingController::class, 'update']);
+        Route::delete('backing/{backing}', [BackingController::class, 'destroy']);
         Route::patch('backing/{backing}/complete', [BackingController::class, 'complete']);
 
         //transaction
-        Route::apiResource('transaction', TransactionController::class);
+        Route::get('transaction', [TransactionController::class, 'index']);
+        Route::get('transaction/{transaction}', [TransactionController::class, 'show']);
+        Route::post('transaction', [TransactionController::class, 'store']);
+        Route::put('transaction/{transaction}', [TransactionController::class, 'update']);
+        Route::delete('transaction/{transaction}', [TransactionController::class, 'destroy']);
         Route::patch('transaction/{transaction}/mock-payment',[TransactionController::class, 'mockPayment']);
 
         // Notification
@@ -87,6 +119,7 @@ Route::prefix('v1')->group(function () {
 
         //Wallet
         Route::get('/wallet', [WalletController::class, 'index']);
+        Route::post('/wallet/topup', [WalletController::class, 'topup']);
         Route::post('/wallet/withdraw', [WalletController::class, 'withdraw']);
     });
 
@@ -97,15 +130,18 @@ Route::prefix('v1')->group(function () {
         Route::get('dashboard/funding-chart', [AdminOverviewController::class, 'fundingChart'])
             ->name('admin.dashboard.funding-chart');
 
-        Route::apiResource('user', AdminUserController::class)->only(['index', 'show', 'destroy']);
+        Route::get('user', [AdminUserController::class, 'index']);
+        Route::get('user/{user}', [AdminUserController::class, 'show']);
+        Route::delete('user/{user}', [AdminUserController::class, 'destroy']);
 
-        Route::apiResource('campaign', AdminCampaignController::class)->except(['store','update']);
+        Route::get('campaign', [AdminCampaignController::class, 'index']);
+        Route::get('campaign/review', [AdminCampaignController::class, 'review']);
+        Route::get('campaign/{campaign}', [AdminCampaignController::class, 'show']);
 
         Route::prefix('campaign/{campaign}')->group(function () {
             Route::patch('approve', [AdminCampaignController::class, 'approve'])->name('admin.campaign.approve');
             Route::patch('reject', [AdminCampaignController::class, 'reject'])->name('admin.campaign.reject');
-            Route::get('campaign/review',[AdminCampaignController::class,'review']);
-            Route::patch('campaign/{campaign}/force-fail',[AdminCampaignController::class,'forceFail'])->name('admin.campaign.force-fail');
+            Route::patch('force-fail',[AdminCampaignController::class,'forceFail'])->name('admin.campaign.force-fail');
         });
     });
 });

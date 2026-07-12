@@ -39,12 +39,12 @@ class TransactionService
         return DB::transaction(function () use ($data, $user) {
 
             return Transaction::create([
-                'user_id' => $user->id,
+                'user_id'    => $user->id,
                 'backing_id' => $data['backing_id'],
-                'type' => $data['type'],
-                'amount' => $data['amount'],
-                'status' => 'pending',
-                'reference_id' => Str::uuid(),
+                'type'       => $data['type'],
+                'amount'     => $data['amount'],
+                'status'     => 'pending',
+                'reference'  => Str::uuid(),
             ]);
 
         });
@@ -109,15 +109,22 @@ class TransactionService
         );
     }
 
-    public function storePaymentTransaction(Backing $backing): Transaction
+    public function storePaymentTransaction(User $user, Campaign $campaign, Backing $backing): Transaction
     {
+
+         if ($user->balance < $backing->amount) {
+            throw new Exception('Saldo tidak mencukupi.');
+        }
+
+        $user->decrement('balance', $backing->amount);
+
         return Transaction::create([
-            'user_id'      => $backing->user_id,
-            'backing_id'   => $backing->id,
-            'type'         => 'payment',
-            'amount'       => $backing->amount,
-            'status'       => 'pending',
-            'reference_id' => 'PAY-' . strtoupper(Str::random(12)),
+            'user_id'    => $user->id,
+            'backing_id' => $backing->id,
+            'type'       => 'payment',
+            'amount'     => $backing->amount,
+            'status'     => 'success',
+            'reference'  => 'PAY-' . strtoupper(Str::random(12)),
         ]);
     }
 
@@ -145,21 +152,21 @@ class TransactionService
             }
 
             Transaction::create([
-                'user_id' => $creator->id,
+                'user_id'    => $creator->id,
                 'backing_id' => $backing->id,
-                'type' => 'disbursement',
-                'amount' => $receive,
-                'status' => 'success',
-                'reference_id' => 'DISB-' . uniqid(),
+                'type'       => 'disbursement',
+                'amount'     => $receive,
+                'status'     => 'success',
+                'reference'  => 'DISB-' . uniqid(),
             ]);
 
             Transaction::create([
-                'user_id' => $creator->id,
+                'user_id'    => $creator->id,
                 'backing_id' => $backing->id,
-                'type' => 'platform_fee',
-                'amount' => $fee,
-                'status' => 'success',
-                'reference_id' => 'FEE-' . uniqid(),
+                'type'       => 'platform_fee',
+                'amount'     => $fee,
+                'status'     => 'success',
+                'reference'  => 'FEE-' . uniqid(),
             ]);
         });
 
@@ -189,12 +196,12 @@ class TransactionService
                 ]);
 
                 Transaction::create([
-                    'user_id' => $backer->id,
+                    'user_id'    => $backer->id,
                     'backing_id' => $backing->id,
-                    'type' => 'refund',
-                    'amount' => $backing->amount,
-                    'status' => 'success',
-                    'reference_id' => 'REF-' . uniqid(),
+                    'type'       => 'refund',
+                    'amount'     => $backing->amount,
+                    'status'     => 'success',
+                    'reference'  => 'REF-' . uniqid(),
                 ]);
             }
         });

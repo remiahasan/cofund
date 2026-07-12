@@ -1,17 +1,22 @@
 <script setup>
+import { onMounted, ref } from "vue";
 import Logo from "@/icon/Group 47602.svg";
 import imageLogin from "@/images/gambarauth1.png";
 import Input from "@/components/Input.vue";
+import InfoModal from "@/components/common/InfoModal.vue";
 import { useForm, useField } from "vee-validate";
 import * as yup from "yup";
 import { useAuthStore } from "@/stores/authStore";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
 import { dashboardRouteByRole } from "@/router";
 
 const authStore = useAuthStore();
+const route = useRoute();
 const router = useRouter();
 const toast = useToast();
+
+const showVerifiedModal = ref(false);
 
 const schema = yup.object({
     email: yup.string().required("Email wajib diisi").email("Format email tidak valid"),
@@ -33,6 +38,13 @@ const login = handleSubmit(async (values) => {
         toast.error(error.response?.data?.message || "Email atau password salah");
     }
 });
+
+onMounted(() => {
+    // Backend mengarahkan ke /login?verified=1 setelah link verifikasi email diklik
+    if (route.query.verified === '1' || route.query.verified === 'true') {
+        showVerifiedModal.value = true;
+    }
+});
 </script>
 
 <template>
@@ -48,6 +60,9 @@ const login = handleSubmit(async (values) => {
                 <form class="pt-7" @submit.prevent="login" novalidate>
                     <Input v-model="email" label="Email" name="email" placeholder="Masukkan Email Terdaftar Anda" type="email" :error="emailError" />
                     <Input v-model="password" class="pt-4" label="Password" name="password" placeholder="Masukkan Password Anda" type="password" :error="passwordError" />
+                    <div class="text-right pt-2">
+                        <router-link to="/forgot-password" class="text-sm text-blue-700 font-medium">Lupa Password?</router-link>
+                    </div>
                     <div class="pt-6">
                         <button class="w-full bg-blue-700 text-white py-2 rounded-sm font-semibold" type="submit">Login</button>
                     </div>
@@ -60,5 +75,13 @@ const login = handleSubmit(async (values) => {
                 <img class="rounded-2xl shadow-2xl" :src="imageLogin" alt="">
             </div>
         </div>
+
+        <InfoModal
+            :visible="showVerifiedModal"
+            @update:visible="val => showVerifiedModal = val"
+            title="Email Telah Diverifikasi"
+            message="Akun Anda sudah terverifikasi. Silakan login untuk melanjutkan."
+            button-text="Mengerti"
+        />
     </div>
 </template>

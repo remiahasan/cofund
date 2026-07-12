@@ -18,7 +18,8 @@ class Transaction extends Model
         'type',
         'amount',
         'status',
-        'reference_id'
+        'reference',
+        'description',
     ];
 
     public function user(): BelongsTo

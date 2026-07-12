@@ -6,24 +6,38 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\WalletService;
 use App\Http\Resources\WalletResource;
+use App\Http\Resources\TransactionResource;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\WithdrawRequest;
-use App\Models\Transaction;
+use App\Http\Requests\TopUpRequest;
 
 class WalletController extends Controller
 {
     public function __construct(
-        private WalletService $walletService
+        private readonly WalletService $walletService
     ) {}
 
-    public function balance(): JsonResponse
+    public function index(): JsonResponse
     {
         $balance = $this->walletService->balance(auth()->user());
 
-        return response()->json([
-            'success' => true,
-            'data' => new WalletResource($balance),
-        ]);
+        return $this->success(
+            'Saldo berhasil diambil.',
+            new WalletResource($balance)
+        );
+    }
+
+    public function topup(TopUpRequest $request): JsonResponse
+    {
+        $transaction = $this->walletService->topUp(
+            auth()->user(),
+            $request->amount
+        );
+
+        return $this->success(
+            'Top up berhasil.',
+            new TransactionResource($transaction)
+        );
     }
 
     public function withdraw(WithdrawRequest $request): JsonResponse 
@@ -33,10 +47,10 @@ class WalletController extends Controller
             $request->amount
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Withdraw berhasil.',
-            'data' => $transaction,
-        ]);
+        return $this->success(
+            'Withdraw berhasil.',
+            new TransactionResource($transaction)
+        );
     }
 }
+

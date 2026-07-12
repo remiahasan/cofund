@@ -15,6 +15,8 @@ import ApprovalQueue from '@/pages/admin/ApprovalQueue.vue'
 import UserManagement from '@/pages/admin/UserManagement.vue'
 import PlatformOverview from '@/pages/admin/PlatformOverview.vue'
 import CampaignManagement from '@/pages/admin/CampaignManagement.vue'
+import ForgotPassword from '@/pages/auth/ForgotPassword.vue'
+import ResetPassword from '@/pages/auth/ResetPassword.vue'
 
 export const dashboardRouteByRole = {
     admin: 'dashboard.admin',
@@ -35,6 +37,18 @@ const routes = [
         name: 'login',
         component: Login,
         meta:{ requiresAuth: false }
+    },
+    {
+        path: '/forgot-password',
+        name: 'forgot-password',
+        component: ForgotPassword,
+        meta: { requiresAuth: false }
+    },
+    {
+        path: '/reset-password',
+        name: 'reset-password',
+        component: ResetPassword,
+        meta: { requiresAuth: false }
     },
     {
         path: '/',
