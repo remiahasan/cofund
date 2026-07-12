@@ -10,6 +10,9 @@ export const adminService = {
 
     getUsers: () => api.get('/admin/user'),
     getUserDetail: (id) => api.get(`/admin/user/${id}`),
+    getCreatorRequests: () => api.get('/admin/user/creator-request'),
+    approveCreator: (id) => api.patch(`/admin/user/${id}/role`),
+    rejectCreator: (id) => api.patch(`/admin/user/${id}/creator-request`),
 
     getOverview: () => api.get('/admin/dashboard'),
     getOverviewChart: () => api.get('/admin/dashboard/funding-chart'),

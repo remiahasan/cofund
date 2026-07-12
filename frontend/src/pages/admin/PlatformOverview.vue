@@ -61,14 +61,14 @@ const chartOptions = {
 </script>
 
 <template>
-    <div class="p-4 sm:p-8">
+    <div class="p-4">
         <h1 class="text-2xl font-bold mb-6">Overview Platform</h1>
 
         <div v-if="isLoading" class="text-center py-20 text-gray-500">Memuat data...</div>
         <ErrorState v-else-if="hasError" message="Gagal memuat overview platform." @retry="load" />
 
         <template v-else-if="overview">
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            <div class="grid md:grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
                 <div class="border rounded-xl p-4">
                     <p class="text-xs text-gray-500">Total Kampanye</p>
                     <p class="text-xl font-bold mt-1">{{ totalCampaigns }}</p>

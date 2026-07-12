@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('role', ['backer', 'creator', 'admin'])->default('backer');
             $table->decimal('balance', 15, 2)->default(0);
             $table->rememberToken();
-            $table->timestamps();
+            $table->timestamps();   
         });
     }
 

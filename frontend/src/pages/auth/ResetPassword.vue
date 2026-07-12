@@ -8,6 +8,7 @@ import Input from "@/components/Input.vue";
 import InfoModal from "@/components/common/InfoModal.vue";
 import { useAuthStore } from "@/stores/authStore";
 import { useToast } from "vue-toastification";
+import imageRegister from "@/images/gambarauth2.png"
 
 const route = useRoute();
 const router = useRouter();
@@ -57,7 +58,7 @@ function handleModalConfirm() {
             <h1 class="font-bold text-4xl">Cofund</h1>
         </div>
 
-        <div class="mx-14 my-28">
+        <div class="mx-14 my-28 items-center justify-center md:gap-2 md:columns-2">
             <div v-if="linkInvalid" class="max-w-md flex flex-col items-center text-center gap-3 py-10 mx-auto">
                 <i class="pi pi-exclamation-triangle text-4xl text-red-500"></i>
                 <h1 class="text-2xl font-bold">Link Tidak Valid</h1>
@@ -65,7 +66,7 @@ function handleModalConfirm() {
                 <router-link to="/forgot-password" class="text-blue-700 font-semibold mt-2">Minta Link Baru</router-link>
             </div>
 
-            <div v-else class="max-w-md">
+            <div v-else class="w-full">
                 <h1 class="text-3xl font-bold">Reset Password</h1>
                 <p class="py-4">Masukkan password baru untuk akun <span class="font-semibold">{{ emailFromLink }}</span></p>
                 <form class="pt-4" @submit.prevent="submit" novalidate>
@@ -75,6 +76,9 @@ function handleModalConfirm() {
                         <button class="w-full bg-blue-700 text-white py-2 rounded-sm font-semibold" type="submit">Reset Password</button>
                     </div>
                 </form>
+            </div>
+            <div class="justify-items-end hidden md:block">
+                <img class="rounded-2xl shadow-2xl" :src="imageRegister" alt="">
             </div>
         </div>
 

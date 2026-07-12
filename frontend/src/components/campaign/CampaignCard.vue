@@ -10,7 +10,8 @@ const props = defineProps({
 
 const primaryImage = computed(() => {
     const img = props.campaign.images?.find(i => i.is_primary) || props.campaign.images?.[0]
-    return img?.url || noImage
+    const urlImage = 'http://localhost:8000' + img?.url
+    return urlImage
 })
 
 const percentage = computed(() => {

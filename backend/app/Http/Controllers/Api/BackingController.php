@@ -38,6 +38,22 @@ class BackingController extends Controller
         );
     }
 
+    public function mine(Request $request): JsonResponse
+    {
+        $backings = $this->backingService->getUserBackings($request->user());
+
+        return $this->success(
+            'Riwayat Backing Berhasil Diambil',
+            BackingResource::collection($backings),
+            [
+                'current_page' => $backings->currentPage(),
+                'per_page' => $backings->perPage(),
+                'last_page' => $backings->lastPage(),
+                'total' => $backings->total(),
+            ]
+        );
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -107,6 +123,25 @@ class BackingController extends Controller
             'Pembayaran berhasil dikonfirmasi',
             new BackingResource($backing)
         );
+    }
+
+    public function requestCreator(): JsonResponse
+    {
+        $user = auth()->user();
+
+        if ($user->role === 'creator') {
+            return $this->error('Anda sudah menjadi creator', 400);
+        }
+
+        if ($user->creator_request_status === 'pending') {
+            return $this->error('Pengajuan sedang diproses', 400);
+        }
+
+        $user->update([
+            'creator_request_status' => 'pending'
+        ]);
+
+        return $this->success('Pengajuan berhasil dikirim');
     }
 }
 

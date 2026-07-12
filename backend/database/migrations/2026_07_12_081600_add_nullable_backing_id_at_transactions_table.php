@@ -15,7 +15,7 @@ return new class extends Migration
             $table->foreignId('backing_id')->nullable()->change();
             $table->renameColumn('reference_id', 'reference');
         });
-         Schema::table('transactions', function (Blueprint $table) {
+        Schema::table('transactions', function (Blueprint $table) {
             $table->string('reference')->nullable()->change();
         });
     }

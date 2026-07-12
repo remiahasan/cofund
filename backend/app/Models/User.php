@@ -27,7 +27,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'role',
-        'balance'
+        'balance',
+        'creator_request_status'
     ];
 
     /**
@@ -50,12 +51,12 @@ class User extends Authenticatable implements MustVerifyEmail
         'password' => 'hashed',
     ];
 
-    public function campaigns()
+    public function campaigns(): HasMany
     {
         return $this->hasMany(Campaign::class);
     }
 
-    public function backings()
+    public function backings(): HasMany
     {
         return $this->hasMany(Backing::class);
     }
@@ -65,7 +66,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Transaction::class);
     }
 
-    public function notifications()
+    public function notifications(): HasMany
     {
         return $this->hasMany(Notification::class);
     }

@@ -36,7 +36,8 @@ const daysLeft = computed(() => {
 
 const primaryImage = computed(() => {
     const img = currentCampaign.value?.images?.find(i => i.is_primary) || currentCampaign.value?.images?.[0]
-    return img?.url || noImage
+    const urlImage = 'http://localhost:8000' + img?.url
+    return urlImage
 })
 
 function formatCurrency(value) {

@@ -19,34 +19,30 @@ use App\Jobs\RefundBackersJob;
 
 class CampaignService
 {
-    public function getCampaigns(array $filters = []): LengthAwarePaginator
+    public function getCampaigns(array $filters, ?User $user = null)
     {
-        return Campaign::with(['creator', 'category', 'images'])
-            ->withCount('backings')
-            ->when(
-                $filters['search'] ?? null,
-                function ($query) use ($filters) {
-                    $search = $filters['search'];
-                    $query->where(function ($q) use ($search) {
-                        $q->where('title', 'like', "%{$search}%")->orWhere('description', 'like', "%{$search}%");
-                    });
+        $query = Campaign::query();
+
+        if (!$user || $user->role !== 'admin') {
+
+            $query->where(function ($q) use ($user) {
+                $q->where('status', 'active');
+                if ($user) {
+                    $q->orWhere('user_id', $user->id);
                 }
-            )
-            ->when(
-                $filters['category'] ?? null,
-                fn ($query, $category) => $query->where('category_id', $category)
-            )
-            ->when(
-                $filters['status'] ?? null,
-                fn ($query, $status) => $query->where('status', $status)
-            )
-            ->when(
-                ($filters['sort'] ?? 'newest') === 'popular',
-                fn ($query) => $query->orderByDesc('backings_count'),
-                fn ($query) => $query->latest()
-            )
-            ->paginate(10)
-            ->withQueryString();
+            });
+        }
+        if (!empty($filters['search'])) {
+            $query->where('title', 'like', "%{$filters['search']}%");
+        }
+        if (!empty($filters['category'])) {
+            $query->where('category_id', $filters['category']);
+        }
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        return $query->paginate(10);
     }
 
     public function showCampaign(Campaign $campaign): Campaign

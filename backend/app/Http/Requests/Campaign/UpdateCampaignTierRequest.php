@@ -24,7 +24,7 @@ class UpdateCampaignTierRequest extends FormRequest
         return [
             'name' => 'sometimes|string|max:100',
             'minimum_amount' => 'sometimes|numeric|min:100000',
-            'quota' => 'sometimes|integer|min:1',
+            'quota' => 'sometimes|integer|min:0',
             'reward_description' => 'sometimes|string',
         ];
     }

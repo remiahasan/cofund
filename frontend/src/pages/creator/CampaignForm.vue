@@ -59,7 +59,7 @@ async function handleSubmit() {
                 <span v-if="errors.basicInfo.description" class="text-red-500 text-xs">{{ errors.basicInfo.description }}</span>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="font-medium">Target Dana (Rp)</label>
                     <input v-model.number="basicInfo.target_amount" type="number" min="100000" class="w-full border rounded-sm px-4 py-2 mt-1" placeholder="Minimal Rp100.000" />
@@ -84,7 +84,7 @@ async function handleSubmit() {
         </div>
 
         <div v-if="step === 2" class="flex flex-col gap-8">
-            <div>
+            <div class="rounded-xl py-5 px-5 bg-gray-200">
                 <label class="font-medium">Foto Kampanye (1-5 foto)</label>
                 <input type="file" accept="image/*" multiple @change="onImageChange" class="mt-1 block" />
                 <span v-if="errors.images" class="text-red-500 text-xs">{{ errors.images }}</span>
@@ -103,31 +103,31 @@ async function handleSubmit() {
                     <button @click="addTier" type="button" class="text-blue-700 text-sm font-semibold">+ Tambah Tier</button>
                 </div>
 
-                <div v-for="(tier, i) in tiers" :key="i" class="border rounded-xl p-4 mb-3 flex flex-col gap-2">
+                <div v-for="(tier, i) in tiers" :key="i" class="rounded-xl p-4 mb-3 flex flex-col gap-2 bg-gray-200">
                     <div class="flex justify-between">
                         <span class="font-semibold text-sm">Tier {{ i + 1 }}</span>
                         <button v-if="tiers.length > 1" @click="removeTier(i)" type="button" class="text-red-500 text-xs">Hapus</button>
                     </div>
-                    <input v-model="tier.name" placeholder="Nama tier (mis. Early Bird)" class="w-full border rounded-sm px-3 py-2" />
+                    <input v-model="tier.name" placeholder="Nama tier (mis. Early Bird)" class="w-full border border-gray-500 rounded-sm px-3 py-2" />
                     <span v-if="errors.tiers[i]?.name" class="text-red-500 text-xs">{{ errors.tiers[i].name }}</span>
 
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <div>
-                            <input v-model.number="tier.min_amount" type="number" placeholder="Min. nominal (Rp)" class="w-full border rounded-sm px-3 py-2" />
-                            <span v-if="errors.tiers[i]?.min_amount" class="text-red-500 text-xs">{{ errors.tiers[i].min_amount }}</span>
+                            <input v-model.number="tier.minimum_amount" type="number" placeholder="Min. nominal (Rp)" class="w-full border border-gray-500 rounded-sm px-3 py-2" />
+                            <span v-if="errors.tiers[i]?.minimum_amount" class="text-red-500 text-xs">{{ errors.tiers[i].minimum_amount }}</span>
                         </div>
                         <div>
-                            <input v-model.number="tier.quota" type="number" placeholder="Kuota (0 = tidak terbatas)" class="w-full border rounded-sm px-3 py-2" />
+                            <input v-model.number="tier.quota" type="number" placeholder="Kuota (0 = tidak terbatas)" class="w-full border border-gray-500 rounded-sm px-3 py-2" />
                             <span v-if="errors.tiers[i]?.quota" class="text-red-500 text-xs">{{ errors.tiers[i].quota }}</span>
                         </div>
                     </div>
 
-                    <textarea v-model="tier.reward_description" rows="2" placeholder="Deskripsi reward" class="w-full border rounded-sm px-3 py-2"></textarea>
+                    <textarea v-model="tier.reward_description" rows="2" placeholder="Deskripsi reward" class="w-full border border-gray-500 rounded-sm px-3 py-2"></textarea>
                     <span v-if="errors.tiers[i]?.reward_description" class="text-red-500 text-xs">{{ errors.tiers[i].reward_description }}</span>
                 </div>
             </div>
 
-            <div class="flex justify-between pt-2">
+            <div class="flex flex-col gap-2 md:flex-row md:justify-between pt-2">
                 <button @click="prevStep" type="button" class="border px-6 py-2 rounded-sm font-semibold">Kembali</button>
                 <button @click="nextStep" type="button" class="bg-blue-700 text-white px-6 py-2 rounded-sm font-semibold">Lanjut ke Preview</button>
             </div>
@@ -149,13 +149,13 @@ async function handleSubmit() {
             <div>
                 <h4 class="font-semibold mb-2">Tier ({{ tiers.length }})</h4>
                 <ul class="list-disc pl-5 text-sm text-gray-700">
-                    <li v-for="(tier, i) in tiers" :key="i">{{ tier.name }} — Rp{{ Number(tier.min_amount || 0).toLocaleString('id-ID') }}</li>
+                    <li v-for="(tier, i) in tiers" :key="i">{{ tier.name }} — Rp{{ Number(tier.minimum_amount || 0).toLocaleString('id-ID') }}</li>
                 </ul>
             </div>
 
             <p class="text-xs text-gray-400">Kampanye akan tersimpan sebagai <strong>draft</strong>. Anda bisa mengajukan review kapan saja setelah ini dari dashboard.</p>
 
-            <div class="flex justify-between pt-2">
+            <div class="flex flex-col gap-2 md:flex-row md:justify-between pt-2">
                 <button @click="prevStep" type="button" class="border px-6 py-2 rounded-sm font-semibold">Kembali</button>
                 <button @click="handleSubmit" :disabled="isSubmitting" type="button" class="bg-blue-700 text-white px-6 py-2 rounded-sm font-semibold disabled:bg-gray-300">
                     {{ isSubmitting ? 'Menyimpan...' : 'Simpan sebagai Draft' }}

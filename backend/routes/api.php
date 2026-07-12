@@ -80,6 +80,7 @@ Route::prefix('v1')->group(function () {
 
         // Backings
         Route::get('campaign/{campaign}/backing', [BackingController::class, 'index']);
+        Route::get('backing/mine', [BackingController::class, 'mine']);
         Route::get('backing/{backing}', [BackingController::class, 'show']);
         Route::post('backing', [BackingController::class, 'store']);
         Route::put('backing/{backing}', [BackingController::class, 'update']);
@@ -112,6 +113,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/wallet', [WalletController::class, 'index']);
         Route::post('/wallet/topup', [WalletController::class, 'topup']);
         Route::post('/wallet/withdraw', [WalletController::class, 'withdraw']);
+
+        // creator request
+        Route::post('backings/requestCreator', [BackingController::class, 'requestCreator']);
     });
 
     Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
@@ -123,6 +127,9 @@ Route::prefix('v1')->group(function () {
 
         Route::get('user', [AdminUserController::class, 'index']);
         Route::get('user/{user}', [AdminUserController::class, 'show']);
+        Route::patch('user/{user}/role', [AdminUserController::class, 'toCreator']);
+        Route::get('user/creator-request', [AdminUserController::class, 'creatorRequests']);
+        Route::patch('user/{user}/creator-request', [AdminUserController::class, 'rejectCreator']);
 
         Route::get('campaign', [AdminCampaignController::class, 'index']);
         Route::get('campaign/review', [AdminCampaignController::class, 'review']);

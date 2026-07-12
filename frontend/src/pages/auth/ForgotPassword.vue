@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { useForm, useField } from "vee-validate";
 import * as yup from "yup";
 import Logo from "@/icon/Group 47602.svg";
-import imageForgot from "@/images/gambarauth3.png";
+import imageForgot from "@/images/gambarauth1.png";
 import Input from "@/components/Input.vue";
 import { useAuthStore } from "@/stores/authStore";
 import { useToast } from "vue-toastification";
@@ -37,8 +37,8 @@ const submit = handleSubmit(async (values) => {
             <img :src="Logo" alt="">
             <h1 class="font-bold text-4xl">Cofund</h1>
         </div>
-        <div class="mx-14 my-28 columns-2">
-            <div class="w-full max-w-md">
+        <div class="mx-auto mt-28 items-center justify-center md:gap-2 md:columns-2">
+            <div class="w-full">
                 <template v-if="!isSent">
                     <h1 class="text-3xl font-bold">Lupa Password</h1>
                     <p class="py-4">Masukkan email Anda, kami akan mengirimkan link untuk reset password.</p>

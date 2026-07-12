@@ -21,6 +21,7 @@ class UserResource extends JsonResource
             'role' => $this->role,
             'balance' => $this->balance,
             'email_verified_at' => $this->hasVerifiedEmail(),
+            'creator_request_status' => $this->creator_request_status,
             'created_at' => $this->created_at,
         ];
     }

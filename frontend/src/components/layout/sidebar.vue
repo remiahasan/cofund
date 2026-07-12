@@ -1,13 +1,10 @@
 <script setup>
-import { ref } from 'vue';
-import { LayoutDashboard } from '@lucide/vue';
-import { TableProperties } from '@lucide/vue';
-import { ClipboardList } from '@lucide/vue';
-import { Bell } from '@lucide/vue';
-import { User } from '@lucide/vue';
-import { Settings } from '@lucide/vue';
-import { HelpCircle } from '@lucide/vue';
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { LayoutDashboard, Megaphone, Wallet, Bell, ClipboardCheck, Users, BarChart3, PlusCircle } from '@lucide/vue';
 import Button from 'primevue/button';
+import { useAuthStore } from '@/stores/authStore';
+import { dashboardRouteByRole } from '@/router';
 
 const props = defineProps({
     sidebarOpen: {
@@ -17,29 +14,40 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['sidebar-toggle']);
+const authStore = useAuthStore();
+const router = useRouter();
 
 const toggleMobileMenu = () => {
     emit('sidebar-toggle');
 };
 
-const onMenuItemClick = () => {
-    // Handle menu click if needed (e.g., auto close on mobile)
+const navItemsByRole = {
+    backer: [
+        { to: { name: dashboardRouteByRole.backer }, label: 'Dashboard', icon: LayoutDashboard },
+        { to: { name: 'campaign.list' }, label: 'Kampanye', icon: Megaphone },
+        { to: { name: 'wallet' }, label: 'Saldo', icon: Wallet },
+    ],
+    creator: [
+        { to: { name: dashboardRouteByRole.creator }, label: 'Dashboard', icon: LayoutDashboard },
+        { to: { name: 'creator.campaign.create' }, label: 'Buat Kampanye', icon: PlusCircle },
+        { to: { name: 'campaign.list' }, label: 'Kampanye', icon: Megaphone },
+        { to: { name: 'wallet' }, label: 'Saldo', icon: Wallet },
+    ],
+    admin: [
+        { to: { name: dashboardRouteByRole.admin }, label: 'Dashboard', icon: LayoutDashboard },
+        { to: { name: 'admin.approval' }, label: 'Approval Queue', icon: ClipboardCheck },
+        { to: { name: 'admin.campaigns' }, label: 'Manajemen Kampanye', icon: Megaphone },
+        { to: { name: 'admin.users' }, label: 'Manajemen User', icon: Users },
+        { to: { name: 'admin.overview' }, label: 'Overview Platform', icon: BarChart3 },
+    ],
 };
 
-const userMenuVisible = ref(false);
+const navItems = computed(() => navItemsByRole[authStore.user?.role] || []);
 
-const navItems = [
-    { to: '/', label: 'Dashboard', icon: LayoutDashboard, badge: null },
-    { to: '/tables', label: 'Campaign', icon: TableProperties, badge: null },
-    { to: '/forms', label: 'Wallet', icon: ClipboardList, badge: null },
-    { to: '/charts', label: 'Notifications', icon: Bell, badge: 'New' },
-    { to: '/posts', label: 'profile', icon: User, badge: null },
-];
-
-const systemItems = [
-    { to: '/settings', label: 'Settings', icon: Settings },
-    { to: '/help', label: 'Help Center', icon: HelpCircle },
-];
+async function handleLogout() {
+    await authStore.logout();
+    router.push({ name: 'login' });
+}
 </script>
 
 <template>
@@ -72,26 +80,22 @@ const systemItems = [
         <nav class="sidebar-nav">
             <div class="nav-section-label" v-if="sidebarOpen">Main</div>
 
-            <router-link v-for="item in navItems" :key="item.to" :to="item.to" class="nav-item" active-class="active"
-                @click="onMenuItemClick" v-tooltip.right="!sidebarOpen ? item.label : null">
-                <component :is="item.icon" :size="18" class="nav-icon flex-shrink-0" />
-                <Transition name="label-fade">
-                    <span v-if="sidebarOpen" class="nav-label">{{ item.label }}</span>
-                </Transition>
-                <Transition name="label-fade">
-                    <span v-if="sidebarOpen && item.badge" class="nav-badge">{{ item.badge }}</span>
-                </Transition>
-            </router-link>
-
-            <div class="nav-section-label mt-3" v-if="sidebarOpen">System</div>
-
-            <router-link v-for="item in systemItems" :key="item.to" :to="item.to" class="nav-item" active-class="active"
+            <router-link v-for="item in navItems" :key="item.label" :to="item.to" class="nav-item" active-class="active"
                 @click="onMenuItemClick" v-tooltip.right="!sidebarOpen ? item.label : null">
                 <component :is="item.icon" :size="18" class="nav-icon flex-shrink-0" />
                 <Transition name="label-fade">
                     <span v-if="sidebarOpen" class="nav-label">{{ item.label }}</span>
                 </Transition>
             </router-link>
+
+            <div class="nav-section-label mt-3" v-if="sidebarOpen">Akun</div>
+
+            <button class="nav-item w-full text-left" @click="handleLogout" v-tooltip.right="!sidebarOpen ? 'Logout' : null">
+                <i class="pi pi-sign-out nav-icon flex-shrink-0"></i>
+                <Transition name="label-fade">
+                    <span v-if="sidebarOpen" class="nav-label">Logout</span>
+                </Transition>
+            </button>
         </nav>
     </aside>
 </template>
@@ -119,7 +123,7 @@ const systemItems = [
     left: 0;
     height: 100vh;
     transition: width var(--t-base);
-    z-index: 1000;
+    z-index: 45;
     overflow: hidden;
 }
 
@@ -161,7 +165,6 @@ const systemItems = [
     white-space: nowrap;
 }
 
-/* === SIDEBAR NAV === */
 .sidebar-nav {
     padding: 1.25rem;
     flex: 1;
@@ -195,6 +198,9 @@ const systemItems = [
     position: relative;
     font-size: 0.875rem;
     font-weight: 500;
+    background: none;
+    border: none;
+    cursor: pointer;
 }
 
 .nav-item:hover {
@@ -227,19 +233,6 @@ const systemItems = [
 .nav-label {
     flex: 1;
     overflow: hidden;
-}
-
-.nav-badge {
-    font-size: 0.6rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 0.2rem 0.5rem;
-    background: var(--primary-color);
-    color: #fff;
-    border-radius: var(--radius-full);
-    line-height: 1;
-    flex-shrink: 0;
 }
 
 .layout-sidebar.layout-sidebar-collapsed {

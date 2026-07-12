@@ -24,11 +24,10 @@ class CampaignController extends Controller
     {
         $filters = $request->only(['search', 'category', 'status', 'sort']);
 
-        if (!$request->user('sanctum')) {
-            $filters['status'] = 'active';
-        }
-
-        $campaigns = $this->campaignService->getCampaigns($filters);
+        $campaigns = $this->campaignService->getCampaigns(
+            $filters,
+            $request->user('sanctum')
+        );
 
         return $this->success(
             'Daftar Campaign Berhasil Diambil',

@@ -96,7 +96,7 @@ async function handleSubmit() {
                 <label class="font-medium">Foto Kampanye (1-5 foto)</label>
                 <div class="flex flex-wrap gap-3 mt-3" v-if="existingImages.length">
                     <div v-for="img in existingImages" :key="img.id" class="relative">
-                        <img :src="img.url" class="w-24 h-24 object-cover rounded-lg border" />
+                        <img :src="'http://localhost:8000' + img.url" class="w-24 h-24 object-cover rounded-lg border" />
                         <button @click="removeExistingImage(img.id)" type="button" class="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 text-xs">✕</button>
                     </div>
                 </div>
@@ -114,28 +114,28 @@ async function handleSubmit() {
                     <label class="font-medium">Tier Reward (minimal 1)</label>
                     <button @click="addTier" type="button" class="text-blue-700 text-sm font-semibold">+ Tambah Tier</button>
                 </div>
-                <div v-for="(tier, i) in tiers" :key="tier.id ?? `new-${i}`" class="border rounded-xl p-4 mb-3 flex flex-col gap-2">
+                <div v-for="(tier, i) in tiers" :key="tier.id ?? `new-${i}`" class="rounded-xl p-4 mb-3 flex flex-col gap-2 bg-gray-200">
                     <div class="flex justify-between">
                         <span class="font-semibold text-sm">Tier {{ i + 1 }}<span v-if="tier.id" class="text-gray-400 font-normal"> (tersimpan)</span></span>
                         <button v-if="tiers.length > 1" @click="removeTier(i)" type="button" class="text-red-500 text-xs">Hapus</button>
                     </div>
-                    <input v-model="tier.name" placeholder="Nama tier" class="w-full border rounded-sm px-3 py-2" />
+                    <input v-model="tier.name" placeholder="Nama tier" class="w-full border rounded-sm border-gray-500 px-3 py-2" />
                     <span v-if="errors.tiers[i]?.name" class="text-red-500 text-xs">{{ errors.tiers[i].name }}</span>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <input v-model.number="tier.min_amount" type="number" placeholder="Min. nominal (Rp)" class="w-full border rounded-sm px-3 py-2" />
+                            <input v-model.number="tier.min_amount" type="number" placeholder="Min. nominal (Rp)" class="w-full border border-gray-500 rounded-sm border-gray-300 px-3 py-2" />
                             <span v-if="errors.tiers[i]?.min_amount" class="text-red-500 text-xs">{{ errors.tiers[i].min_amount }}</span>
                         </div>
                         <div>
-                            <input v-model.number="tier.quota" type="number" placeholder="Kuota (0 = tidak terbatas)" class="w-full border rounded-sm px-3 py-2" />
+                            <input v-model.number="tier.quota" type="number" placeholder="Kuota (0 = tidak terbatas)" class="w-full border border-gray-500 rounded-sm px-3 py-2" />
                             <span v-if="errors.tiers[i]?.quota" class="text-red-500 text-xs">{{ errors.tiers[i].quota }}</span>
                         </div>
                     </div>
-                    <textarea v-model="tier.reward_description" rows="2" placeholder="Deskripsi reward" class="w-full border rounded-sm px-3 py-2"></textarea>
+                    <textarea v-model="tier.reward_description" rows="2" placeholder="Deskripsi reward" class="w-full border border-gray-500 rounded-sm px-3 py-2"></textarea>
                     <span v-if="errors.tiers[i]?.reward_description" class="text-red-500 text-xs">{{ errors.tiers[i].reward_description }}</span>
                 </div>
             </div>
-            <div class="flex justify-between pt-2">
+            <div class="flex flex-col gap-2 md:flex-row md:justify-between pt-2">
                 <button @click="prevStep" type="button" class="border px-6 py-2 rounded-sm font-semibold">Kembali</button>
                 <button @click="nextStep" type="button" class="bg-blue-700 text-white px-6 py-2 rounded-sm font-semibold">Lanjut ke Preview</button>
             </div>
@@ -143,7 +143,7 @@ async function handleSubmit() {
         <div v-if="step === 3" class="flex flex-col gap-6">
             <h2 class="text-xl font-semibold">Preview Perubahan</h2>
             <div class="flex gap-3 flex-wrap">
-                <img v-for="img in existingImages" :key="img.id" :src="img.url" class="w-28 h-28 object-cover rounded-lg border" />
+                <img v-for="img in existingImages" :key="img.id" :src="'http://localhost:8000' + img.url" class="w-28 h-28 object-cover rounded-lg border" />
                 <img v-for="(src, i) in imagePreviews" :key="i" :src="src" class="w-28 h-28 object-cover rounded-lg border" />
             </div>
             <div>
@@ -157,7 +157,7 @@ async function handleSubmit() {
                     <li v-for="(tier, i) in tiers" :key="i">{{ tier.name }} — Rp{{ Number(tier.min_amount || 0).toLocaleString('id-ID') }}</li>
                 </ul>
             </div>
-            <div class="flex justify-between pt-2">
+            <div class="flex flex-col gap-2 md:flex-row md:justify-between pt-2">
                 <button @click="prevStep" type="button" class="border px-6 py-2 rounded-sm font-semibold">Kembali</button>
                 <button @click="handleSubmit" :disabled="isSubmitting" type="button" class="bg-blue-700 text-white px-6 py-2 rounded-sm font-semibold disabled:bg-gray-300">
                     {{ isSubmitting ? 'Menyimpan...' : 'Simpan Perubahan' }}

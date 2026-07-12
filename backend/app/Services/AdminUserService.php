@@ -13,7 +13,7 @@ class AdminUserService
                 'campaigns',
                 'backings',
                 'transactions',
-            ])
+            ])->where('role', '!=', 'admin')
             ->latest()
             ->paginate(10);
     }

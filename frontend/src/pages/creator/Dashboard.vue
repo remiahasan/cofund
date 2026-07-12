@@ -29,7 +29,7 @@ const statusColor = {
     active: 'bg-blue-100 text-blue-700', success: 'bg-green-100 text-green-700', failed: 'bg-red-100 text-red-700',
 }
 
-function goCreate() { router.push({ name: 'campaign.create' }) }
+function goCreate() { router.push({ name: 'creator.campaign.create' }) }
 function goEdit(id) { router.push({ name: 'campaign.edit', params: { id } }) }
 
 async function submitForReview(id) {
@@ -44,13 +44,13 @@ async function submitForReview(id) {
 </script>
 
 <template>
-    <div class="p-4 sm:p-8">
-        <div class="flex justify-between items-center mb-6">
+    <div class="p-4">
+        <div class="md:flex md:justify-between items-center mb-6">
             <h1 class="text-2xl font-bold">Dashboard Creator</h1>
-            <button @click="goCreate" class="bg-blue-700 text-white px-4 py-2 rounded-sm font-semibold">+ Buat Kampanye</button>
+            <button @click="goCreate" class="bg-blue-700 mt-3 md:mt-0 text-white px-4 py-2 rounded-sm font-semibold">+ Buat Kampanye</button>
         </div>
 
-        <div v-if="creatorSummary" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        <div v-if="creatorSummary" class="grid md:grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
             <div class="border rounded-xl p-4">
                 <p class="text-xs text-gray-500">Total Kampanye</p>
                 <p class="text-xl font-bold mt-1">{{ creatorSummary.total_campaign }}</p>

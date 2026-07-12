@@ -20,7 +20,7 @@ class AdminUserResource extends JsonResource
             'email' => $this->email,
             'role' => $this->role,
             'balance' => $this->balance,
-
+            'creator_request_status' => $this->creator_request_status,
             'campaign_count' => $this->campaigns_count,
             'backing_count' => $this->backings_count,
             'transaction_count' => $this->transactions_count,

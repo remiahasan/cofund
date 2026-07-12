@@ -128,4 +128,15 @@ class BackingService
         });
     }
 
+    public function getUserBackings(User $user): LengthAwarePaginator
+    {
+        return $user->backings()->with([
+            'campaign',
+            'campaignTier',
+            'user'
+        ])
+            ->latest()
+            ->paginate(10);
+    }
+
 }

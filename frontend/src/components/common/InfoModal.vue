@@ -19,7 +19,7 @@ function handleConfirm() {
 </script>
 
 <template>
-    <Dialog :visible="visible" @update:visible="$emit('update:visible', $event)" modal :closable="false" class="w-full max-w-sm">
+    <Dialog :visible="visible" @update:visible="$emit('update:visible', $event)" modal :closable="false" class="w-full max-w-sm !bg-gray-200 !rounded-2xl py-5 px-5 overflow-hidden">
         <div class="text-center py-4 flex flex-col items-center gap-3">
             <i :class="['pi', icon, iconColor, 'text-4xl']"></i>
             <h3 class="font-semibold text-lg">{{ title }}</h3>
