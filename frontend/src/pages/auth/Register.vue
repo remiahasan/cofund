@@ -47,9 +47,9 @@ function goToLogin() {
     <div class="m-14">
         <div class="flex items-center gap-4">
             <img :src="Logo" alt="">
-            <h1 class="font-bold text-4xl">Cofund</h1>
+            <h1 class="font-bold text-xl md:text-4xl">Cofund</h1>
         </div>
-        <div class="mx-14 my-28 columns-2">
+        <div class="mx-auto mt-28 items-center justify-center md:gap-2 md:columns-2">
             <div class="w-full">
                 <h1 class="text-3xl font-bold">Register</h1>
                 <p class="py-4 ">Daftarkan akun Anda untuk memulai</p>
@@ -68,7 +68,7 @@ function goToLogin() {
                     <p>Sudah punya akun? <a class="text-blue-700 font-semibold cursor-pointer" @click="goToLogin">Masuk</a></p>
                 </div>
             </div>
-            <div class="justify-items-end">
+            <div class="justify-items-end hidden md:block">
                 <img class="rounded-2xl shadow-2xl" :src="imageRegister" alt="">
             </div>
         </div>

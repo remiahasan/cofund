@@ -48,11 +48,9 @@ async function handleSubmit() {
 
 <template>
     <div v-if="isLoadingInitial" class="text-center py-20 text-gray-500">Memuat data kampanye...</div>
-
     <div v-else-if="isEditable" class="max-w-4xl mx-auto px-6 py-10">
         <h1 class="text-2xl font-bold mb-2">Edit Kampanye</h1>
         <p class="text-gray-500 mb-8">Langkah {{ step }} dari 3</p>
-
         <div v-if="step === 1" class="flex flex-col gap-4">
             <div>
                 <label class="font-medium">Judul Kampanye</label>
@@ -93,21 +91,17 @@ async function handleSubmit() {
                 <button @click="nextStep" type="button" class="bg-blue-700 text-white px-6 py-2 rounded-sm font-semibold">Lanjut</button>
             </div>
         </div>
-
         <div v-if="step === 2" class="flex flex-col gap-8">
             <div>
                 <label class="font-medium">Foto Kampanye (1-5 foto)</label>
-
                 <div class="flex flex-wrap gap-3 mt-3" v-if="existingImages.length">
                     <div v-for="img in existingImages" :key="img.id" class="relative">
                         <img :src="img.url" class="w-24 h-24 object-cover rounded-lg border" />
                         <button @click="removeExistingImage(img.id)" type="button" class="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 text-xs">✕</button>
                     </div>
                 </div>
-
                 <input type="file" accept="image/*" multiple @change="onImageChange" class="mt-3 block" />
                 <span v-if="errors.images" class="text-red-500 text-xs">{{ errors.images }}</span>
-
                 <div class="flex flex-wrap gap-3 mt-3" v-if="imagePreviews.length">
                     <div v-for="(src, i) in imagePreviews" :key="i" class="relative">
                         <img :src="src" class="w-24 h-24 object-cover rounded-lg border" />
@@ -115,13 +109,11 @@ async function handleSubmit() {
                     </div>
                 </div>
             </div>
-
             <div>
                 <div class="flex justify-between items-center mb-2">
                     <label class="font-medium">Tier Reward (minimal 1)</label>
                     <button @click="addTier" type="button" class="text-blue-700 text-sm font-semibold">+ Tambah Tier</button>
                 </div>
-
                 <div v-for="(tier, i) in tiers" :key="tier.id ?? `new-${i}`" class="border rounded-xl p-4 mb-3 flex flex-col gap-2">
                     <div class="flex justify-between">
                         <span class="font-semibold text-sm">Tier {{ i + 1 }}<span v-if="tier.id" class="text-gray-400 font-normal"> (tersimpan)</span></span>
@@ -143,13 +135,11 @@ async function handleSubmit() {
                     <span v-if="errors.tiers[i]?.reward_description" class="text-red-500 text-xs">{{ errors.tiers[i].reward_description }}</span>
                 </div>
             </div>
-
             <div class="flex justify-between pt-2">
                 <button @click="prevStep" type="button" class="border px-6 py-2 rounded-sm font-semibold">Kembali</button>
                 <button @click="nextStep" type="button" class="bg-blue-700 text-white px-6 py-2 rounded-sm font-semibold">Lanjut ke Preview</button>
             </div>
         </div>
-
         <div v-if="step === 3" class="flex flex-col gap-6">
             <h2 class="text-xl font-semibold">Preview Perubahan</h2>
             <div class="flex gap-3 flex-wrap">

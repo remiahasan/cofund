@@ -1,12 +1,19 @@
 <script setup>
 import { onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
 import dayjs from 'dayjs'
 import { useCampaign } from '@/composables/useCampaign'
+import { useBackingFlow } from '@/composables/useBackingFlow'
+import { useAuthStore } from '@/stores/authStore'
 import ProgressBar from 'primevue/progressbar'
+import BackingDialog from '@/components/backing/BackingDialog.vue'
 import noImage from '@/images/no-image.jpg'
 
 const route = useRoute()
+const router = useRouter()
+const toast = useToast()
+const authStore = useAuthStore()
 const { currentCampaign, isLoading, fetchOne } = useCampaign()
 
 onMounted(() => {
@@ -35,6 +42,38 @@ const primaryImage = computed(() => {
 function formatCurrency(value) {
     return 'Rp' + Number(value || 0).toLocaleString('id-ID')
 }
+
+const isOwnCampaign = computed(() => {
+    return authStore.isAuthenticated && currentCampaign.value?.user_id === authStore.user?.id
+})
+
+const canBack = computed(() => {
+    return currentCampaign.value?.status === 'active' && !isOwnCampaign.value
+})
+
+const flow = useBackingFlow(currentCampaign)
+
+function handleBackClick() {
+    if (!authStore.isAuthenticated) {
+        toast.info('Silakan login terlebih dahulu untuk melakukan backing')
+        router.push({ name: 'login' })
+        return
+    }
+    if (!authStore.user?.email_verified_at) {
+        toast.warning('Verifikasi email Anda terlebih dahulu sebelum melakukan backing')
+        return
+    }
+    if (isOwnCampaign.value) {
+        toast.warning('Anda tidak bisa membacking kampanye milik sendiri')
+        return
+    }
+    flow.open()
+}
+
+function handleDone() {
+    flow.close()
+    fetchOne(route.params.id)
+}
 </script>
 
 <template>
@@ -56,6 +95,13 @@ function formatCurrency(value) {
                 Terkumpul <span class="font-semibold">{{ formatCurrency(currentCampaign.collected_amount) }}</span>
                 dari target {{ formatCurrency(currentCampaign.target_amount) }}
             </div>
+
+            <button v-if="canBack" @click="handleBackClick"
+                class="bg-blue-700 text-white px-6 py-3 rounded-sm font-semibold mt-4 w-full sm:w-auto">
+                Backing Sekarang
+            </button>
+            <p v-else-if="isOwnCampaign" class="text-sm text-gray-400 mt-4">Ini kampanye milik Anda sendiri.</p>
+            <p v-else-if="currentCampaign.status !== 'active'" class="text-sm text-gray-400 mt-4">Kampanye ini belum/tidak lagi menerima backing.</p>
         </div>
 
         <div class="mt-8">
@@ -63,7 +109,6 @@ function formatCurrency(value) {
             <p class="text-gray-700 whitespace-pre-line">{{ currentCampaign.description }}</p>
         </div>
 
-        <!-- TODO: sesuaikan struktur field tiers/updates setelah response backend dikonfirmasi -->
         <div class="mt-8" v-if="currentCampaign.tiers?.length">
             <h2 class="text-xl font-semibold mb-4">Pilihan Tier</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -86,6 +131,28 @@ function formatCurrency(value) {
                 <p class="text-gray-700 mt-2 whitespace-pre-line">{{ update.content }}</p>
             </div>
         </div>
+
+        <BackingDialog
+            :visible="flow.isOpen.value"
+            @update:visible="val => val ? null : flow.close()"
+            :phase="flow.phase.value"
+            :campaign="currentCampaign"
+            :available-tiers="flow.availableTiers.value"
+            :selected-option="flow.selectedOption.value"
+            :free-amount="flow.freeAmount.value"
+            :validation-error="flow.validationError.value"
+            :error-message="flow.errorMessage.value"
+            :final-amount="flow.finalAmount.value"
+            :free-amount-key="flow.FREE_AMOUNT"
+            @update:free-amount="val => flow.freeAmount.value = val"
+            @select-tier="flow.selectTier"
+            @select-free="flow.selectFree"
+            @next="flow.validateAndGoToConfirm"
+            @back="flow.phase.value = 'select'"
+            @confirm="flow.confirmBacking"
+            @retry="flow.phase.value = 'select'"
+            @done="handleDone"
+        />
     </div>
 
     <div v-else class="text-center py-20 text-gray-500">Kampanye tidak ditemukan.</div>

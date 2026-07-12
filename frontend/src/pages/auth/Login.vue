@@ -36,12 +36,12 @@ const login = handleSubmit(async (values) => {
 </script>
 
 <template>
-    <div class="m-14">
+    <div class="p-14">
         <div class="flex items-center gap-4">
             <img :src="Logo" alt="">
-            <h1 class="font-bold text-4xl">Cofund</h1>
+            <h1 class="font-bold text-xl md:text-4xl">Cofund</h1>
         </div>
-        <div class="mx-14 my-28 columns-2">
+        <div class="xl:mx-14 mt-28 items-center justify-center md:columns-2">
             <div class="w-full">
                 <h1 class="text-3xl font-bold">Login</h1>
                 <p class="py-4 ">Silahkan Masuk Menggunakan Akun Anda</p>
@@ -56,7 +56,7 @@ const login = handleSubmit(async (values) => {
                     <p>Belum Punya akun? <router-link class="text-blue-700 font-semibold" to="/register">Daftar</router-link></p>
                 </div>
             </div>
-            <div class="justify-items-end">
+            <div class="justify-items-end hidden md:block">
                 <img class="rounded-2xl shadow-2xl" :src="imageLogin" alt="">
             </div>
         </div>

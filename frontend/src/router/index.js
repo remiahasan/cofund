@@ -3,13 +3,14 @@ import Register from '@/pages/auth/Register.vue'
 import Login from '@/pages/auth/Login.vue'
 import GuestLayout from '@/layout/GuestLayout.vue'
 import PublicLayout from '@/layout/PublicLayout.vue'
-import CampaignList from '@/components/campaign/CampaignList.vue'
-import CampaignDetail from '@/components/campaign/CampaignDetail.vue'
+import CampaignList from '@/pages/campaign/CampaignList.vue'
+import CampaignDetail from '@/pages/campaign/CampaignDetail.vue'
 import DashboardBacker from '@/pages/backer/Dashboard.vue'
 import DashboardAdmin from '@/pages/admin/Dashboard.vue'
 import DashboardCreator from '@/pages/creator/Dashboard.vue'
 import CampaignForm from '@/pages/creator/CampaignForm.vue'
-import CampaignForm from '@/pages/creator/CampaignEditForm.vue'
+import CampaignEditForm from '@/pages/creator/CampaignEditForm.vue'
+import Saldo from '@/pages/shared/Saldo.vue'
 
 export const dashboardRouteByRole = {
     admin: 'dashboard.admin',
@@ -82,6 +83,12 @@ const routes = [
                 name: 'campaign.edit',
                 component: CampaignEditForm,
                 meta: { requiresAuth: true, roles: ['creator'] }
+            },
+            {
+                path: 'saldo',
+                name: 'wallet',
+                component: Saldo,
+                meta: { requiresAuth: true }
             },
         ]
     }
