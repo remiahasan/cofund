@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { transactionService } from '@/services/transactionService'
+import { transactionService } from '@/services/walletService'
 
 export const useWalletStore = defineStore('wallet', () => {
     const transactions = ref([])

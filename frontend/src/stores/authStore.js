@@ -55,6 +55,7 @@ export const useAuthStore = defineStore('auth', () => {
     async function fetchProfile() {
         const res = await authService.getProfile()
         user.value = res.data
+        console.log(res.data)
         localStorage.setItem('user', JSON.stringify(res.data))
         return res
     }

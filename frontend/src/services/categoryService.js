@@ -1,5 +1,5 @@
-import api from "./api";
+import api from './api'
 
 export const categoryService = {
-    getAll: (params) => api.get('/categories', { params })
+    getAll: () => api.get('/category'),
 }

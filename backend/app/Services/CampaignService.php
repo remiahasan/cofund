@@ -21,33 +21,32 @@ class CampaignService
 {
     public function getCampaigns(array $filters = []): LengthAwarePaginator
     {
-        return Campaign::with([
-            'creator',
-            'category',
-            'images'
-        ])
-        ->when(
-            $filters['search'] ?? null,
-            function ($query) use ($filters) {
-                $search = $filters['search'];
-
-                $query->where(function ($q) use ($search) {
-                    $q->where('title', 'like', "%{$search}%")->orWhere('description', 'like', "%{$search}%");
-                });
-            }
-        )
-        ->when(
-            $filters['category'] ?? null,
-            function ($query, $category) {
-
-                $query->where('category_id', $category);
-
-            }
-        )
-
-        ->latest()
-        ->paginate(10)
-        ->withQueryString();
+        return Campaign::with(['creator', 'category', 'images'])
+            ->withCount('backings')
+            ->when(
+                $filters['search'] ?? null,
+                function ($query) use ($filters) {
+                    $search = $filters['search'];
+                    $query->where(function ($q) use ($search) {
+                        $q->where('title', 'like', "%{$search}%")->orWhere('description', 'like', "%{$search}%");
+                    });
+                }
+            )
+            ->when(
+                $filters['category'] ?? null,
+                fn ($query, $category) => $query->where('category_id', $category)
+            )
+            ->when(
+                $filters['status'] ?? null,
+                fn ($query, $status) => $query->where('status', $status)
+            )
+            ->when(
+                ($filters['sort'] ?? 'newest') === 'popular',
+                fn ($query) => $query->orderByDesc('backings_count'),
+                fn ($query) => $query->latest()
+            )
+            ->paginate(10)
+            ->withQueryString();
     }
 
     public function showCampaign(Campaign $campaign): Campaign

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 
 class AuthService
@@ -20,7 +21,6 @@ class AuthService
         ]);
 
         $user->sendEmailVerificationNotification();
-        
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -55,5 +55,31 @@ class AuthService
     public function logoutUser(User $user): void
     {
         $user->currentAccessToken()?->delete();
+    }
+
+    public function sendPasswordResetLink(string $email): array
+    {
+        $status = Password::sendResetLink(['email' => $email]);
+
+        return [
+            'success' => $status === Password::RESET_LINK_SENT,
+            'message' => __($status),
+        ];
+    }
+
+    public function resetPassword(array $data): array
+    {
+        $status = Password::reset(
+            $data,
+            function (User $user, string $password) {
+                $user->forceFill(['password' => Hash::make($password)])->save();
+                $user->tokens()->delete();
+            }
+        );
+
+        return [
+            'success' => $status === Password::PASSWORD_RESET,
+            'message' => __($status),
+        ];
     }
 }

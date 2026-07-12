@@ -13,15 +13,16 @@ class VerificationController extends Controller
         private readonly VerificationService $verificationService
     ) {}
 
-    public function verify(Request $request, $id, $hash): JsonResponse
+    public function verify(Request $request, $id, $hash)
     {
         $result = $this->verificationService->verifyUser((int) $id, $hash);
+        $frontendUrl = config('app.frontend_url', 'http://localhost:5173');
 
         if ($result['status'] === 'invalid') {
-            return $this->error($result['message'], null, 401);
+            return redirect()->away("{$frontendUrl}/login?verified=0");
         }
 
-        return $this->success($result['message']);
+        return redirect()->away("{$frontendUrl}/login?verified=1");
     }
 
     public function resend(Request $request): JsonResponse

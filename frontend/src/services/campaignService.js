@@ -1,14 +1,10 @@
-import api from "./api";
+import api from './api'
 
 export const campaignService = {
-    getAll: (params) => api.get('/campaigns', { params }),
-    getOne: (id) => api.get(`/campaigns/${id}`),
-    getMine: (params) => api.get('/campaigns/mine', { params }),
-    store: (formData) => api.post('/campaigns', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    }),
-    update: (id, formData) => api.post(`/campaigns/${id}?_method=put`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    }),
-    submit: (id) => api.post(`/campaigns/${id}/submit`),
+    getAll: (params) => api.get('/campaign', { params }),
+    getOne: (id) => api.get(`/campaign/${id}`),
+    store: (payload) => api.post('/campaign', payload),
+    update: (id, payload) => api.put(`/campaign/${id}`, payload),
+    destroy: (id) => api.delete(`/campaign/${id}`),
+    submitToReview: (id) => api.patch(`/campaign/${id}/to-review`),
 }

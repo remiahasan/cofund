@@ -13,28 +13,17 @@ class DashboardService
     public function creatorDashboard(User $creator): array
     {
         $campaigns = Campaign::withCount('backings')
-            ->where('creator_id', $creator->id)
+            ->where('user_id', $creator->id)
             ->latest()
             ->get();
 
         $summary = [
             'total_campaign' => $campaigns->count(),
-
-            'active_campaign' => $campaigns
-                ->where('status', 'active')
-                ->count(),
-
-            'funded_campaign' => $campaigns
-                ->where('status', 'funded')
-                ->count(),
-
-            'failed_campaign' => $campaigns
-                ->where('status', 'failed')
-                ->count(),
-
+            'active_campaign' => $campaigns->where('status', 'active')->count(),
+            'success_campaign' => $campaigns->where('status', 'success')->count(),
+            'failed_campaign' => $campaigns->where('status', 'failed')->count(),
             'total_backer' => $campaigns->sum('backings_count'),
-
-            'total_collected' => $campaigns->sum('current_amount'),
+            'total_collected' => $campaigns->sum('collected_amount'),
         ];
 
         return [
@@ -47,8 +36,8 @@ class DashboardService
     {
         $dailyFunding = Backing::query()
             ->join('campaigns', 'campaigns.id', '=', 'backings.campaign_id')
-            ->where('campaigns.creator_id', $creator->id)
-            ->where('backings.status', 'confirmed')
+            ->where('campaigns.user_id', $creator->id)
+            ->where('backings.status', 'completed')
             ->select(
                 DB::raw('DATE(backings.created_at) as date'),
                 DB::raw('SUM(backings.amount) as total')
@@ -60,14 +49,12 @@ class DashboardService
         $runningTotal = 0;
 
         return $dailyFunding->map(function ($item) use (&$runningTotal) {
-
             $runningTotal += $item->total;
 
             return [
                 'date' => $item->date,
                 'amount' => $runningTotal,
             ];
-
         });
     }
 
@@ -76,19 +63,11 @@ class DashboardService
         $backings = Backing::where('user_id', $user->id);
 
         return [
-
-            'total_backing' => (clone $backings)
-                ->where('status', 'confirmed')
-                ->sum('amount'),
-
-            'campaign_joined' => (clone $backings)
-                ->distinct('campaign_id')
-                ->count('campaign_id'),
-
+            'total_backing' => (clone $backings)->where('status', 'completed')->sum('amount'),
+            'campaign_joined' => (clone $backings)->distinct('campaign_id')->count('campaign_id'),
             'total_refund' => Transaction::where('user_id', $user->id)
                 ->where('type', 'refund')
                 ->sum('amount'),
-
         ];
     }
 }

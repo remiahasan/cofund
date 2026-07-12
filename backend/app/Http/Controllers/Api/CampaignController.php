@@ -22,12 +22,13 @@ class CampaignController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $campaigns = $this->campaignService->getCampaigns(
-            $request->only([
-                'search',
-                'category'
-            ])
-        );
+        $filters = $request->only(['search', 'category', 'status', 'sort']);
+
+        if (!$request->user('sanctum')) {
+            $filters['status'] = 'active';
+        }
+
+        $campaigns = $this->campaignService->getCampaigns($filters);
 
         return $this->success(
             'Daftar Campaign Berhasil Diambil',
@@ -59,8 +60,17 @@ class CampaignController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Campaign $campaign): JsonResponse
+    public function show(Request $request, Campaign $campaign): JsonResponse
     {
+        if ($campaign->status !== 'active') {
+            $user = $request->user('sanctum');
+            $isOwnerOrAdmin = $user && ($user->id === $campaign->user_id || $user->role === 'admin');
+
+            if (!$isOwnerOrAdmin) {
+                return $this->error('Campaign tidak ditemukan.', null, 404);
+            }
+        }
+
         $campaign = $this->campaignService->showCampaign($campaign);
 
         return $this->success(

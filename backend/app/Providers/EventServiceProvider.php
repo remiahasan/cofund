@@ -15,7 +15,9 @@ use App\Events\CampaignUpdated;
 use App\Events\CampaignDeadlineReminder;
 use App\Events\CampaignDisbursed;
 use App\Events\CampaignRefunded;
+use App\Events\PasswordResetRequested;
 
+use App\Listeners\SendPasswordResetMail;
 use App\Listeners\SendCampaignApprovedNotification;
 use App\Listeners\SendCampaignRejectedNotification;
 use App\Listeners\SendNewBackingNotification;
@@ -59,6 +61,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         CampaignRefunded::class => [
             SendCampaignRefundedNotification::class,
+        ],
+        PasswordResetRequested::class => [
+            SendPasswordResetMail::class,
         ],
     ];
 

@@ -41,9 +41,6 @@ class CampaignTierController extends Controller
             $campaign,
             $request->validated()
         );
-
-        dd($campaignTier);
-
         return $this->success('Campaign Tier berhasil dibuat', new CampaignTierResource($campaignTier));
     }
 
