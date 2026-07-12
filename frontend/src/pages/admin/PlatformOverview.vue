@@ -1,16 +1,14 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue'
 import { Bar } from 'vue-chartjs'
-import {
-    Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale,
-} from 'chart.js'
-import dayjs from 'dayjs'
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
 import { adminService } from '@/services/adminService'
 import ErrorState from '@/components/common/ErrorState.vue'
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
 const overview = ref(null)
+const chartRaw = ref([])
 const isLoading = ref(false)
 const hasError = ref(false)
 
@@ -20,8 +18,12 @@ async function load() {
     isLoading.value = true
     hasError.value = false
     try {
-        const res = await adminService.getPlatformOverview()
-        overview.value = res.data.data
+        const [overviewRes, chartRes] = await Promise.all([
+            adminService.getOverview(),
+            adminService.getOverviewChart(),
+        ])
+        overview.value = overviewRes.data.data
+        chartRaw.value = chartRes.data.data
     } catch (error) {
         hasError.value = true
     } finally {
@@ -37,14 +39,14 @@ function formatCurrency(value) {
 
 const totalCampaigns = computed(() => {
     if (!overview.value) return 0
-    return Object.values(overview.value.campaigns_by_status || {}).reduce((a, b) => a + b, 0)
+    return Object.values(overview.value.campaigns || {}).reduce((a, b) => a + b, 0)
 })
 
 const chartData = computed(() => ({
-    labels: (overview.value?.campaigns_per_month || []).map(m => dayjs(m.month + '-01').format('MMM YYYY')),
+    labels: chartRaw.value.map(m => m.month),
     datasets: [{
         label: 'Kampanye Baru',
-        data: (overview.value?.campaigns_per_month || []).map(m => m.count),
+        data: chartRaw.value.map(m => m.total_campaign),
         backgroundColor: '#1d4ed8',
         borderRadius: 4,
     }]
@@ -77,18 +79,18 @@ const chartOptions = {
                 </div>
                 <div class="border rounded-xl p-4">
                     <p class="text-xs text-gray-500">Total Platform Fee</p>
-                    <p class="text-xl font-bold mt-1">{{ formatCurrency(overview.total_platform_fee) }}</p>
+                    <p class="text-xl font-bold mt-1">{{ formatCurrency(overview.platform_fee) }}</p>
                 </div>
                 <div class="border rounded-xl p-4">
                     <p class="text-xs text-gray-500">Kampanye Aktif</p>
-                    <p class="text-xl font-bold mt-1">{{ overview.campaigns_by_status?.active || 0 }}</p>
+                    <p class="text-xl font-bold mt-1">{{ overview.campaigns?.active || 0 }}</p>
                 </div>
             </div>
 
             <div class="border rounded-xl p-4 mb-8">
                 <h2 class="font-semibold mb-3">Kampanye per Status</h2>
                 <div class="flex flex-wrap gap-3">
-                    <div v-for="(count, status) in overview.campaigns_by_status" :key="status" class="border rounded-lg px-4 py-2 text-sm">
+                    <div v-for="(count, status) in overview.campaigns" :key="status" class="border rounded-lg px-4 py-2 text-sm">
                         <span class="text-gray-500">{{ statusLabel[status] || status }}:</span>
                         <span class="font-bold ml-1">{{ count }}</span>
                     </div>

@@ -12,9 +12,8 @@ const isLoading = ref(false)
 const filters = reactive({ status: '' })
 
 const expandedId = ref(null)
-const backings = ref([])
-const isLoadingBackings = ref(false)
-
+const expandedDetail = ref(null)
+const isLoadingDetail = ref(false)
 const confirmForceFailId = ref(null)
 
 const statusLabel = { draft: 'Draft', review: 'Review', active: 'Aktif', success: 'Berhasil', failed: 'Gagal' }
@@ -27,7 +26,7 @@ const backingStatusLabel = { pending: 'Menunggu', completed: 'Berhasil', refunde
 async function loadCampaigns() {
     isLoading.value = true
     try {
-        const res = await adminService.getAllCampaigns({ status: filters.status || undefined })
+        const res = await adminService.getAllCampaigns(filters.status || undefined)
         campaigns.value = res.data.data
     } finally {
         isLoading.value = false
@@ -43,14 +42,14 @@ async function toggleExpand(campaign) {
         return
     }
     expandedId.value = campaign.id
-    isLoadingBackings.value = true
+    isLoadingDetail.value = true
     try {
-        const res = await adminService.getCampaignBackings(campaign.id)
-        backings.value = res.data.data
+        const res = await adminService.getCampaignDetail(campaign.id)
+        expandedDetail.value = res.data.data
     } catch (error) {
-        backings.value = []
+        expandedDetail.value = null
     } finally {
-        isLoadingBackings.value = false
+        isLoadingDetail.value = false
     }
 }
 
@@ -96,13 +95,13 @@ function formatCurrency(value) {
                             <h3 class="font-semibold">{{ c.title }}</h3>
                             <span class="text-xs px-2 py-0.5 rounded-full" :class="statusColor[c.status]">{{ statusLabel[c.status] }}</span>
                         </div>
-                        <p class="text-sm text-gray-500 mt-1">oleh {{ c.user?.name || '-' }} · deadline {{ dayjs(c.deadline).format('DD MMM YYYY') }}</p>
-                        <p class="text-sm text-gray-600 mt-1">{{ formatCurrency(c.collected_amount) }} / {{ formatCurrency(c.target_amount) }}</p>
+                        <p class="text-sm text-gray-500 mt-1">oleh {{ c.creator?.name || '-' }} · deadline {{ dayjs(c.deadline).format('DD MMM YYYY') }}</p>
+                        <p class="text-sm text-gray-600 mt-1">{{ formatCurrency(c.collected_amount) }} / {{ formatCurrency(c.target_amount) }} · {{ c.total_backers }} backer</p>
                     </div>
 
                     <div class="flex gap-2">
                         <button @click="toggleExpand(c)" class="border px-3 py-1.5 rounded-sm text-sm font-semibold">
-                            {{ expandedId === c.id ? 'Tutup' : 'Lihat Backing' }}
+                            {{ expandedId === c.id ? 'Tutup' : 'Lihat Detail' }}
                         </button>
                         <button v-if="c.status === 'active'" @click="confirmForceFailId = c.id"
                             class="bg-red-600 text-white px-3 py-1.5 rounded-sm text-sm font-semibold">
@@ -112,18 +111,20 @@ function formatCurrency(value) {
                 </div>
 
                 <div v-if="expandedId === c.id" class="mt-4 border-t pt-4">
-                    <div v-if="isLoadingBackings" class="text-sm text-gray-400">Memuat riwayat backing...</div>
-                    <EmptyState v-else-if="backings.length === 0" message="Belum ada backing untuk kampanye ini." icon="pi-wallet" />
-                    <div v-else class="flex flex-col gap-2">
-                        <div v-for="b in backings" :key="b.id" class="flex justify-between text-sm border-b py-2">
-                            <div>
-                                <span class="font-medium">{{ b.user?.name || '-' }}</span>
-                                <span class="text-gray-400 ml-2">{{ dayjs(b.created_at).format('DD MMM YYYY') }}</span>
-                                <span class="text-xs px-2 py-0.5 rounded-full ml-2 bg-gray-100 text-gray-600">{{ backingStatusLabel[b.status] }}</span>
+                    <div v-if="isLoadingDetail" class="text-sm text-gray-400">Memuat detail...</div>
+                    <template v-else-if="expandedDetail">
+                        <EmptyState v-if="!expandedDetail.backings?.length" message="Belum ada backing untuk kampanye ini." icon="pi-wallet" />
+                        <div v-else class="flex flex-col gap-2">
+                            <div v-for="b in expandedDetail.backings" :key="b.id" class="flex justify-between text-sm border-b py-2">
+                                <div>
+                                    <span class="font-medium">{{ b.user?.name || '-' }}</span>
+                                    <span class="text-gray-400 ml-2">{{ dayjs(b.created_at).format('DD MMM YYYY') }}</span>
+                                    <span class="text-xs px-2 py-0.5 rounded-full ml-2 bg-gray-100 text-gray-600">{{ backingStatusLabel[b.status] }}</span>
+                                </div>
+                                <span class="font-semibold text-blue-700">{{ formatCurrency(b.amount) }}</span>
                             </div>
-                            <span class="font-semibold text-blue-700">{{ formatCurrency(b.amount) }}</span>
                         </div>
-                    </div>
+                    </template>
                 </div>
 
                 <div v-if="confirmForceFailId === c.id" class="mt-4 border-t pt-4 bg-red-50 rounded-lg p-3">

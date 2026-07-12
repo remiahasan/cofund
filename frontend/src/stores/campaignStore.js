@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { campaignService } from '@/services/campaignService'
+import { campaignImageService } from '@/services/campaignImageService'
+import { tierService } from '@/services/tierService'
 import { categoryService } from '@/services/categoryService'
 
 export const useCampaignStore = defineStore('campaign', () => {
     const campaigns = ref([])
-    const myCampaigns = ref([])
     const meta = ref({})
     const currentCampaign = ref(null)
     const categories = ref([])
@@ -17,17 +18,6 @@ export const useCampaignStore = defineStore('campaign', () => {
             const res = await campaignService.getAll(params)
             campaigns.value = res.data.data
             meta.value = res.data.meta || {}
-            return res
-        } finally {
-            isLoading.value = false
-        }
-    }
-
-    async function fetchMyCampaigns(params = {}) {
-        isLoading.value = true
-        try {
-            const res = await campaignService.getMine(params)
-            myCampaigns.value = res.data.data
             return res
         } finally {
             isLoading.value = false
@@ -49,37 +39,56 @@ export const useCampaignStore = defineStore('campaign', () => {
         try {
             const res = await categoryService.getAll()
             categories.value = res.data.data
-            return res
         } catch (error) {
             categories.value = []
         }
     }
 
-    async function createCampaign(formData) {
+    async function createCampaignFull({ basicInfo, images, tiers }) {
         isLoading.value = true
         try {
-            return await campaignService.store(formData)
+            const createRes = await campaignService.store({
+                category_id: basicInfo.category_id,
+                title: basicInfo.title,
+                description: basicInfo.description,
+                target_amount: basicInfo.target_amount,
+                deadline: basicInfo.deadline,
+                video_url: basicInfo.video_url || null,
+            })
+            const campaignId = createRes.data.data.id
+
+            if (images.length > 0) {
+                await campaignImageService.store(campaignId, images)
+            }
+
+            for (const tier of tiers) {
+                await tierService.store(campaignId, tier)
+            }
+
+            return campaignId
         } finally {
             isLoading.value = false
         }
     }
 
-    async function updateCampaign(id, formData) {
-        isLoading.value = true
-        try {
-            return await campaignService.update(id, formData)
-        } finally {
-            isLoading.value = false
-        }
+    async function updateCampaignBasicInfo(id, basicInfo) {
+        return campaignService.update(id, {
+            category_id: basicInfo.category_id,
+            title: basicInfo.title,
+            description: basicInfo.description,
+            target_amount: basicInfo.target_amount,
+            deadline: basicInfo.deadline,
+            video_url: basicInfo.video_url || null,
+        })
     }
 
     async function submitCampaign(id) {
-        return campaignService.submit(id)
+        return campaignService.submitToReview(id)
     }
 
     return {
-        campaigns, myCampaigns, meta, currentCampaign, categories, isLoading,
-        fetchCampaigns, fetchMyCampaigns, fetchOne, fetchCategories,
-        createCampaign, updateCampaign, submitCampaign,
+        campaigns, meta, currentCampaign, categories, isLoading,
+        fetchCampaigns, fetchOne, fetchCategories,
+        createCampaignFull, updateCampaignBasicInfo, submitCampaign,
     }
 })

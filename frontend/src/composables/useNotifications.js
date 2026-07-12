@@ -2,7 +2,7 @@ import { storeToRefs } from 'pinia'
 import { onMounted, onUnmounted } from 'vue'
 import { useNotificationStore } from '@/stores/notificationStore'
 
-const POLL_INTERVAL = 30000 // 30 detik
+const POLL_INTERVAL = 30000 
 
 export function useNotifications({ poll = false } = {}) {
     const store = useNotificationStore()

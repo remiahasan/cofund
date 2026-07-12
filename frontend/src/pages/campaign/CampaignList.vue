@@ -11,9 +11,7 @@ const filters = reactive({ category_id: '', sort: 'newest' })
 
 function loadCampaigns() {
     fetchCampaigns({
-        status: 'active',
-        category_id: filters.category_id || undefined,
-        sort: filters.sort,
+        category: filters.category_id || undefined,
     })
 }
 

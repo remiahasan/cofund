@@ -22,7 +22,7 @@ const basicInfoSchema = yup.object({
 
 const tierSchema = yup.object({
     name: yup.string().required('Nama tier wajib diisi'),
-    min_amount: yup.number().typeError('Harus angka').required('Nominal wajib diisi').min(0),
+    minimum_amount: yup.number().typeError('Harus angka').required('Nominal wajib diisi').min(0),
     quota: yup.number().typeError('Harus angka').integer().min(0).required('Kuota wajib diisi (0 = tidak terbatas)'),
     reward_description: yup.string().required('Deskripsi reward wajib diisi'),
 })
@@ -40,12 +40,12 @@ export function useCampaignForm({ mode = 'create', campaignId = null } = {}) {
         target_amount: null, deadline: null, video_url: '',
     })
 
-    const images = ref([]) // file baru yang mau diupload
+    const images = ref([])
     const imagePreviews = computed(() => images.value.map(f => URL.createObjectURL(f)))
-    const existingImages = ref([]) // hanya dipakai saat mode edit: [{id, url}]
+    const existingImages = ref([])
     const removedImageIds = ref([])
 
-    const tiers = reactive([{ name: '', min_amount: null, quota: 0, reward_description: '' }])
+    const tiers = reactive([{ name: '', minimum_amount: null, quota: 0, reward_description: '' }])
     const removedTierIds = ref([])
 
     const errors = reactive({ basicInfo: {}, images: '', tiers: [] })
@@ -57,7 +57,7 @@ export function useCampaignForm({ mode = 'create', campaignId = null } = {}) {
             const res = await store.fetchOne(currentCampaignId.value)
             const c = res.data.data
             basicInfo.title = c.title
-            basicInfo.category_id = c.category_id
+            basicInfo.category_id = c.category?.id ?? ''
             basicInfo.description = c.description
             basicInfo.target_amount = Number(c.target_amount)
             basicInfo.deadline = dayjs(c.deadline).format('YYYY-MM-DD')
@@ -65,7 +65,7 @@ export function useCampaignForm({ mode = 'create', campaignId = null } = {}) {
             existingImages.value = c.images || []
             if (c.tiers?.length) {
                 tiers.splice(0, tiers.length, ...c.tiers.map(t => ({
-                    id: t.id, name: t.name, min_amount: Number(t.min_amount),
+                    id: t.id, name: t.name, minimum_amount: Number(t.minimum_amount),
                     quota: t.quota, reward_description: t.reward_description,
                 })))
             }
@@ -113,7 +113,7 @@ export function useCampaignForm({ mode = 'create', campaignId = null } = {}) {
     }
 
     function addTier() {
-        tiers.push({ name: '', min_amount: null, quota: 0, reward_description: '' })
+        tiers.push({ name: '', minimum_amount: null, quota: 0, reward_description: '' })
     }
 
     function removeTier(index) {
@@ -137,9 +137,7 @@ export function useCampaignForm({ mode = 'create', campaignId = null } = {}) {
     }
 
     async function nextStep() {
-        if (step.value === 1) {
-            if (!(await validateBasicInfo())) return
-        }
+        if (step.value === 1 && !(await validateBasicInfo())) return
         if (step.value === 2) {
             const okImages = validateImages()
             const okTiers = await validateTiers()
@@ -155,36 +153,29 @@ export function useCampaignForm({ mode = 'create', campaignId = null } = {}) {
     async function submitCampaign() {
         isSubmitting.value = true
         try {
-            const formData = new FormData()
-            formData.append('title', basicInfo.title)
-            formData.append('category_id', basicInfo.category_id)
-            formData.append('description', basicInfo.description)
-            formData.append('target_amount', basicInfo.target_amount)
-            formData.append('deadline', dayjs(basicInfo.deadline).format('YYYY-MM-DD'))
-            if (basicInfo.video_url) formData.append('video_url', basicInfo.video_url)
-            images.value.forEach((file) => formData.append('images[]', file))
-
             let resultId = currentCampaignId.value
+
             if (mode === 'create') {
-                const res = await store.createCampaign(formData)
-                resultId = res.data.data.id
+                resultId = await store.createCampaignFull({ basicInfo, images: images.value, tiers })
                 currentCampaignId.value = resultId
             } else {
-                await store.updateCampaign(resultId, formData)
-            }
+                await store.updateCampaignBasicInfo(resultId, basicInfo)
 
-            for (const imgId of removedImageIds.value) {
-                await campaignImageService.destroy(resultId, imgId)
-            }
-
-            for (const tierId of removedTierIds.value) {
-                await tierService.destroy(resultId, tierId)
-            }
-            for (const tier of tiers) {
-                if (tier.id) {
-                    await tierService.update(resultId, tier.id, tier)
-                } else {
-                    await tierService.store(resultId, tier)
+                if (images.value.length > 0) {
+                    await campaignImageService.store(resultId, images.value)
+                }
+                for (const imgId of removedImageIds.value) {
+                    await campaignImageService.destroy(resultId, imgId)
+                }
+                for (const tierId of removedTierIds.value) {
+                    await tierService.destroy(tierId)
+                }
+                for (const tier of tiers) {
+                    if (tier.id) {
+                        await tierService.update(tier.id, tier)
+                    } else {
+                        await tierService.store(resultId, tier)
+                    }
                 }
             }
 
