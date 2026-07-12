@@ -2,13 +2,12 @@
 import { onMounted, reactive, watch } from 'vue'
 import { useCampaign } from '@/composables/useCampaign'
 import CampaignCard from '@/components/campaign/CampaignCard.vue'
+import SkeletonCard from '@/components/common/SkeletonCard.vue'
+import EmptyState from '@/components/common/EmptyState.vue'
 
 const { campaigns, categories, isLoading, fetchCampaigns, fetchCategories } = useCampaign()
 
-const filters = reactive({
-    category_id: '',
-    sort: 'newest',
-})
+const filters = reactive({ category_id: '', sort: 'newest' })
 
 function loadCampaigns() {
     fetchCampaigns({
@@ -27,7 +26,7 @@ watch(filters, loadCampaigns)
 </script>
 
 <template>
-    <div class="max-w-7xl mx-auto px-6 py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
         <h1 class="text-2xl font-bold mb-6">Kampanye Aktif</h1>
 
         <div class="flex flex-wrap gap-4 mb-8">
@@ -42,8 +41,8 @@ watch(filters, loadCampaigns)
             </select>
         </div>
 
-        <div v-if="isLoading" class="text-center py-20 text-gray-500">Memuat kampanye...</div>
-        <div v-else-if="campaigns.length === 0" class="text-center py-20 text-gray-500">Belum ada kampanye aktif.</div>
+        <SkeletonCard v-if="isLoading" />
+        <EmptyState v-else-if="campaigns.length === 0" message="Belum ada kampanye aktif." icon="pi-megaphone" />
 
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <CampaignCard v-for="campaign in campaigns" :key="campaign.id" :campaign="campaign" />

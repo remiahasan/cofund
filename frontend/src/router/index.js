@@ -11,6 +11,10 @@ import DashboardCreator from '@/pages/creator/Dashboard.vue'
 import CampaignForm from '@/pages/creator/CampaignForm.vue'
 import CampaignEditForm from '@/pages/creator/CampaignEditForm.vue'
 import Saldo from '@/pages/shared/Saldo.vue'
+import ApprovalQueue from '@/pages/admin/ApprovalQueue.vue'
+import UserManagement from '@/pages/admin/UserManagement.vue'
+import PlatformOverview from '@/pages/admin/PlatformOverview.vue'
+import CampaignManagement from '@/pages/admin/CampaignManagement.vue'
 
 export const dashboardRouteByRole = {
     admin: 'dashboard.admin',
@@ -89,6 +93,30 @@ const routes = [
                 name: 'wallet',
                 component: Saldo,
                 meta: { requiresAuth: true }
+            },
+            {
+                path: 'admin/approval',
+                name: 'admin.approval',
+                component: ApprovalQueue,
+                meta: { requiresAuth: true, roles: ['admin'] }
+            },
+            {
+                path: 'admin/users',
+                name: 'admin.users',
+                component: UserManagement,
+                meta: { requiresAuth: true, roles: ['admin'] }
+            },
+            {
+                path: 'admin/overview',
+                name: 'admin.overview',
+                component: PlatformOverview,
+                meta: { requiresAuth: true, roles: ['admin'] }
+            },
+            {
+                path: 'admin/campaigns',
+                name: 'admin.campaigns',
+                component: CampaignManagement,
+                meta: { requiresAuth: true, roles: ['admin'] }
             },
         ]
     }
